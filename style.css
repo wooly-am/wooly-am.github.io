@@ -39,6 +39,7 @@ body{
 	/* margin:auto; */
 	/* -o-object-position: right; */
 	max-width: 400px;
+	margin-left: auto;
 }
 
 .c {
