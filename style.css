@@ -1,8 +1,9 @@
 :root {
-	--border-color: #0483ab;
-	--border-color2: #048390;
-	--fill-color: #03919a;
-	--text1-color: #122c18;
+	--border-color: #bc3e22;
+	--border-color2: #a11b3f;
+	--fill-color: #df7126;
+	--fill-color2: #222034;
+	--text1-color: #fdfffe;
 }
 
 body{
@@ -19,19 +20,24 @@ body{
 }
 
 .container {
-	margin: auto;
+	margin: 15px auto;
+	height: 1000px;
+	background-color: #ffffff;
 }
 
 .middle {
 	/* Middle */
-	box-shadow: 5px 5px var(--border-color), -5px -5px var(--border-color2);
+	outline-color: var(--border-color2);
+	outline-style: solid;
+	outline-width: 10px;
+	/*box-shadow: 10px 10px var(--border-color2);*/
 	float: left;
 	background-color: var(--fill-color);
-	border: 2px dashed var(--border-color);
+	border: 10px dashed var(--border-color);
 	padding: 15px 10px 15px 10px;
-	border-radius: 0.3rem;
-	/* margin: 25px 10px; */
-	max-width: 700px;
+	margin: 5px 0px;
+	max-width: 700px;`
+
 }
 
 .right {
@@ -40,9 +46,7 @@ body{
 	padding: 5px;
 	max-width: 375px;
 	
-	background-color: var(--fill-color);
-	border: 2px var(--border-color);
-	border-radius: 0.3rem;
+	background-color: var(--border-color2);
 }
 
 t1{
@@ -52,7 +56,7 @@ t1{
 }
 
 @media only screen and (min-width: 1200px) {
-	.container { max-width: 1110px; }
+	.container { max-width: 1150px; }
 	.right { position: sticky; top: 0; }
 }
 
