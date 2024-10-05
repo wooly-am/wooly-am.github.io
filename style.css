@@ -13,16 +13,21 @@ body{
 }
 
 
-.mainheader {
+.header {
 	margin: auto;
 	position: relative;
-	top: 10px;
+	background-color: #ffffee;
+}
+
+ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
 }
 
 .container {
 	margin: 15px auto;
-	height: 1000px;
-	background-color: #ffffff;
+	height: 1500px;
 }
 
 .middle {
@@ -35,12 +40,15 @@ body{
 	background-color: var(--fill-color);
 	border: 10px dashed var(--border-color);
 	padding: 15px 10px 15px 10px;
-	margin: 5px 0px;
-	max-width: 700px;`
+	margin: 0px 0px;
+	max-width: 700px;
 
 }
 
 .right {
+	outline-color: var(--border-color2);
+	outline-style: solid;
+	outline-width: 10px;
 	/*rightmost*/
 	float: right;
 	padding: 5px;
@@ -57,10 +65,12 @@ t1{
 
 @media only screen and (min-width: 1200px) {
 	.container { max-width: 1150px; }
-	.right { position: sticky; top: 0; }
+	.header { max-width: 1150px; }
+	.right { position: sticky; top: 25px; }
 }
 
 @media only screen and (max-width: 1200px) {
 	.container { max-width: 700px; }
-	.right { max-width: 700px; }
+	.header { max-width: 700px; }
+	.right { max-width: 700px; margin: 10px 0;}
 }

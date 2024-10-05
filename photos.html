@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<title>Images</title>
+<head>
+<link rel="stylesheet" href="style.css">
+<style>
+.center {
+  margin: 0;
+  position: absolute;
+  left: 50%;
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+
+body {
+  background-color: #125;
+}
+
+
+div.photo2 {
+    border: 2px solid #714;
+    width: 250px;
+    height: 200px;
+    position: relative;
+    top: 5px;
+    left: 5px;
+
+
+
+}
+
+div.photo3 {
+    border: 2px solid #952;
+    display: block;
+    position: relative;
+    width: 240px;
+    height: 190px;
+    top: 5px;
+    left: 5px;
+    pointer-events: none;
+    padding: 5px;
+
+}
+
+div.photo {
+    margin: 40px 40px;
+    border: 2px solid #415;
+    display: block;
+    position: relative;
+    width: 250px;
+    height: 200px;
+    pointer-events: none;
+}
+
+img {
+    top: 0;
+    width: 225px;
+    height: 175px;
+}
+
+
+</style>
+</head>
+
+<body>
+
+
+<div class="photo"><div class="photo2"><div class="photo3">
+    <span
+    style="cursor:wait"><img src="Montreal.JPEG" alt="Hello"></span>
+    </div></div></div>
+
+<div class="photo"><div class="photo2"><div class="photo3">
+    <img src="Montreal.JPG" alt="Hello">
+</div></div></div>
+
+</body>
+
+</html>
