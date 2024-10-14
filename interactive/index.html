@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="../style.css">
+<title>Interactive: Games & Sounds</title>
+<link rel="icon" type="image/x-icon" href="../lib/img/favicon.ico">
+<link rel="stylesheet" href="../lib/style.css">
 <style>
 .container {
 	height: 400px;
@@ -10,6 +12,7 @@
 
 </head>
 
+<body class="plain-mono">
 
 <div class="header">
     <ul>
@@ -20,21 +23,19 @@
     </ul>
 </div>
 
-<body>
-
+<div class="container">
 <div class="middle">
 Hello Whats up
 
 <h2>My First JavaScript</h2>
 
-<button type="button"
-onclick="document.getElementById('demo').innerHTML = Date()">
-Click me to display Date and Time.</button>
+<a onload="document.getElementById('demo').innerHTML = Date()">
+Click me to display Date and Time.</a>
 
 <p id="demo"></p>
 
 
-</div>
+</div></div>
 
 </body>
 </html>
