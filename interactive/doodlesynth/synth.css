@@ -1,0 +1,17 @@
+
+
+.px{
+    background-color: #555555;
+    width: 10px;
+    height: 10px;
+    cursor: url(../../lib/img/pencil.png), pointer;
+}
+
+.column{
+    width:10px;
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    display: inline-block;
+    margin: -2px;
+}
