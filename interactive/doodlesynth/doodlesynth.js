@@ -1,6 +1,6 @@
 //import "./noteEvent"
-//var keys = require("./audiokeys/AudioKeys.js");
-var keyboard = new AudioKeys();
+var keys = require("../../lib/audiokeys/AudioKeys.js");
+var keyboard = new keys.AudioKeys();
 
 const amplitude = new Array(32).fill(0.0);
 
