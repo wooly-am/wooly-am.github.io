@@ -2,7 +2,7 @@
 //import "./noteEvent"
 var keys = require("../../lib/audiokeys/AudioKeys.js");
 //works?
-var keyboard = new AudioKeys({
+var keyboard = new keys.AudioKeys({
     polyphony: 10,
     rows: 1,
     priority: 'last'});
