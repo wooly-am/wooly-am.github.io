@@ -1,6 +1,4 @@
 //import "./noteEvent"
-var keys = require("../../lib/audiokeys/AudioKeys.js");
-var keyboard = new keys.AudioKeys();
 
 const amplitude = new Array(32).fill(0.0);
 
@@ -79,14 +77,6 @@ function getAmp(freq, sampleIndex) {
     return amplitude[Math.floor(((freq / SAMPLE_RATE) * sampleIndex * SPEED) % 32)];
 }
 
-/// have a toggle for each note. Idk
-keyboard.down( function(note) {
-    console.log(`Note on: ${note.frequency}`)
-});
-
-keyboard.up( function(note) {
-    console.log(`Note off: ${note.pitch}`)
-});
 
 button.onclick = () => {
     if (!context) {
