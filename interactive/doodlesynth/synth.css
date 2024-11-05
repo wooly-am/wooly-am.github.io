@@ -1,3 +1,9 @@
+.Root{
+    --selected-color: #000000;
+    --selected-color2: #dddddd;
+}
+
+
 .container{
     height: 800px;
     border: 5px solid black;
@@ -14,7 +20,7 @@
     z-index: -1;
 
     font-family: Rudelsburg, serif;
-    font-size: 1000%;
+    font-size: 1300%;
     color: #f1f1f1;
 
     user-select: none;
@@ -62,6 +68,13 @@
     -ms-user-select: none;
     display: inline-block;
     margin: -2px;
+}
+
+.envelope{
+    background-color: var(--selected-color2);
+    border: 2px var(--selected-color);
+    width: 500px;
+    height: 200px;
 }
 
 @media only screen and (min-width: 1200px) {

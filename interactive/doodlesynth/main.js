@@ -20,6 +20,10 @@
         this.amplitude[index] = (value - 15.5) / 15.5
     }
 
+    getValue(column){
+        return (this.amplitude[column] * 15.5) + 15.5;
+    }
+
     reset(){
         this.active = false;
         this.amplitude.fill(0.0);
@@ -49,7 +53,47 @@
     }
 
 }
+class envelope{
+    constructor(){
+        this.a0 = 0;
+        this.s0 = 100;
+        this.d0 = 0;
+        this.a1 = 0;
+        this.s1 = 100;
+        this.d1 = 0;
+        this.a2 = 0;
+        this.s2 = 100;
+        this.d2 = 0;
+        this.a3 = 0;
+        this.s3 = 100;
+        this.d3 = 0;
+    }
 
+    update(id, a, s, d){
+        switch (id){
+            case 0:
+                this.a0 = a;
+                this.s0 = s;
+                this.d0 = d;
+                break;
+            case 1:
+                this.a1 = a;
+                this.s1 = s;
+                this.d1 = d;
+                break;
+            case 2:
+                this.a2 = a;
+                this.s2 = s;
+                this.d2 = d;
+                break;
+            case 3:
+                this.a3 = a;
+                this.s3 = s;
+                this.d3 = d;
+                break;
+        }
+    }
+}
 
 // audio functions:
 
@@ -60,13 +104,17 @@ function newContext() {
 // Controllers
 const CHANNELS = 4;
 const canvas = document.getElementById('canvas');
+const form  = document.querySelector('form');
 let isClick = false;
 let COLOR = 'black';
+let ID = 0;
 const buffers = new Array(CHANNELS);
 var context;
 const SAMPLE_RATE = 44100;
 const SAMPLE_COUNT = SAMPLE_RATE * 2;
 var completeBuffer;
+const env = new envelope();
+var prevAmplitude = 0; //cosmetic
 
 //Populate channels
  buffers[0] = new bufferSynth('black');
@@ -87,18 +135,22 @@ var completeBuffer;
 
  blackButton.addEventListener('click', function() {
      COLOR = 'black';
+     ID = 0;
      console.log(COLOR);
  });
  redButton.addEventListener('click', function() {
      COLOR = 'red';
+     ID = 2;
      console.log(COLOR);
  });
  blueButton.addEventListener('click', function() {
      COLOR = 'blue';
+     ID = 3;
      console.log(COLOR);
  });
  yellowButton.addEventListener('click', function() {
      COLOR = 'yellow';
+     ID = 4;
      console.log(COLOR);
  });
 
@@ -114,28 +166,43 @@ function updateT(element){
                 console.log("Value set!")
             }
         }
-        resetColumn(column, row, COLOR)
+
+        let lineStyle = document.forms["settings"]["style"].value
+
+        if (lineStyle === "line"){
+            if (column === 0) {
+                prevAmplitude = row;
+            }
+            else {
+                prevAmplitude = buffers[ID].getValue(column - 1);
+            }
+            resetColumn(column, row, COLOR, row)
+        }
+
+        else {
+            resetColumn(column, row, COLOR, 32)
+        }
     }
     else { isClick = false; }
 }
 
-function resetColumn(column, row, color) {
+function resetColumn(column, row, color, prev) {
     console.log(column);
     const parent = document.getElementById(column+32);
     let children = parent.children;
     for (let i = 0; i < children.length; i++) {
-        if (i === row) {
+        if ((i >= row && i < prev) || (i <= row && i > prev) || ( i === prev && i === row)) {
             if (color === 'black'){
                 children.item(i).style.setProperty('--color1', 'black');
             }
             if (color === 'red'){
-                children.item(i).style.setProperty('--color2', 'orange');
+                children.item(i).style.setProperty('--color2', 'red');
             }
             if (color === 'blue'){
-                children.item(i).style.setProperty('--color3',  'purple');
+                children.item(i).style.setProperty('--color3',  'blue');
             }
             if (color === 'yellow'){
-                children.item(i).style.setProperty('--color4', 'cyan');
+                children.item(i).style.setProperty('--color4', 'orange');
             }
         }
         else {
@@ -181,23 +248,60 @@ canvas.addEventListener('mouseup', () => {
     completeBuffer = context.createBuffer(CHANNELS, SAMPLE_COUNT, SAMPLE_RATE);
 });
 
-//playback
+form.addEventListener('change', () => {
+     env.update(ID, document.forms["env"]["a"].value, document.forms["env"]["s"].value, document.forms["env"]["d"].value);
+     console.log("updated envelope");
+ });
+
+
+/* playback & Audio handling
+
+
+
+*/
 
  let play = document.getElementById('play');
 
  play.addEventListener('click', function() {
+
      const frequency = 440;
      console.log('i');
      for (let i = 0; i < 4; i++) {
-
          buffers[i].fillBuffer(completeBuffer.getChannelData(i), frequency, SAMPLE_RATE, 16);
          console.log(buffers[i]);
      }
 
      const source = context.createBufferSource();
      source.buffer = completeBuffer;
-     console.log(completeBuffer);
-     source.connect(context.destination);
+     const splitter = context.createChannelSplitter(4);
+     source.connect(splitter);
+     const merger = context.createChannelMerger(4);
+     /*const gainNodes = Array(4);
+
+     for (i = 0; i > 4; i++){
+         gainNodes[i] = context.createGain();
+
+     }*/
+
+     const gainNode0 = context.createGain();
+     gainNode0.gain.setValueAtTime(0.0, context.currentTime + 0);
+     gainNode0.gain.linearRampToValueAtTime(1.0, context.currentTime + (env.a0 / 10)); // envelope
+     gainNode0.gain.setValueAtTime((env.s0 / 100), context.currentTime + 10); // envelope
+     //gainNode0.gain.linearRampToValueAtTime(0.0, context.currentTime + 10);
+     splitter.connect(gainNode0, 0);
+
+     const gainNode1 = context.createGain();
+     gainNode1.gain.setValueAtTime(0.0, context.currentTime + 0);
+     gainNode1.gain.linearRampToValueAtTime(1.0, (context.currentTime + (env.a1 / 10))); // envelope
+     gainNode1.gain.setValueAtTime((env.s0 / 100), context.currentTime + 10); // envelope
+     //gainNode1.gain.linearRampToValueAtTime(0.0, context.currentTime + 10);
+     splitter.connect(gainNode1, 1);
+
+     gainNode0.connect(merger, 0, 0);
+     gainNode1.connect(merger, 0, 1);
+
+
+     source.connect(merger).connect(context.destination);
      source.start();
  });
 
