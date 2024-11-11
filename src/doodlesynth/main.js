@@ -55,41 +55,32 @@
 }
 class envelope{
     constructor(){
-        this.a0 = 0;
-        this.s0 = 100;
-        this.d0 = 0;
-        this.a1 = 0;
-        this.s1 = 100;
-        this.d1 = 0;
-        this.a2 = 0;
-        this.s2 = 100;
-        this.d2 = 0;
-        this.a3 = 0;
-        this.s3 = 100;
-        this.d3 = 0;
+        this.a = [0,0,0,0];
+        this.s = [100,100,100,100];
+        this.d = [0,0,0,0];
     }
 
     update(id, a, s, d){
         switch (id){
             case 0:
-                this.a0 = a;
-                this.s0 = s;
-                this.d0 = d;
+                this.a[0] = a;
+                this.s[0] = s;
+                this.d[0] = d;
                 break;
             case 1:
-                this.a1 = a;
-                this.s1 = s;
-                this.d1 = d;
+                this.a[1] = a;
+                this.s[1] = s;
+                this.d[1] = d;
                 break;
             case 2:
-                this.a2 = a;
-                this.s2 = s;
-                this.d2 = d;
+                this.a[2] = a;
+                this.s[2] = s;
+                this.d[2] = d;
                 break;
             case 3:
-                this.a3 = a;
-                this.s3 = s;
-                this.d3 = d;
+                this.a[3] = a;
+                this.s[3] = s;
+                this.d[3] = d;
                 break;
         }
     }
@@ -102,6 +93,14 @@ function newContext() {
 }
 
 // Controllers
+
+ // presets:
+function sine(){
+
+}
+
+
+
 const CHANNELS = 4;
 const canvas = document.getElementById('canvas');
 const form  = document.querySelector('form');
@@ -256,8 +255,6 @@ form.addEventListener('change', () => {
 
 /* playback & Audio handling
 
-
-
 */
 
  let play = document.getElementById('play');
@@ -275,7 +272,7 @@ form.addEventListener('change', () => {
      source.buffer = completeBuffer;
      const splitter = context.createChannelSplitter(4);
      source.connect(splitter);
-     const merger = context.createChannelMerger(4);
+     const merger = context.createChannelMerger(1);
      /*const gainNodes = Array(4);
 
      for (i = 0; i > 4; i++){
@@ -285,26 +282,165 @@ form.addEventListener('change', () => {
 
      const gainNode0 = context.createGain();
      gainNode0.gain.setValueAtTime(0.0, context.currentTime + 0);
-     gainNode0.gain.linearRampToValueAtTime(1.0, context.currentTime + (env.a0 / 10)); // envelope
-     gainNode0.gain.setValueAtTime((env.s0 / 100), context.currentTime + 10); // envelope
+     gainNode0.gain.linearRampToValueAtTime(1.0, context.currentTime + (env.a[0] / 10)); // envelope
+     gainNode0.gain.setValueAtTime((env.s[0] / 100), context.currentTime + 10); // envelope
      //gainNode0.gain.linearRampToValueAtTime(0.0, context.currentTime + 10);
      splitter.connect(gainNode0, 0);
 
      const gainNode1 = context.createGain();
      gainNode1.gain.setValueAtTime(0.0, context.currentTime + 0);
-     gainNode1.gain.linearRampToValueAtTime(1.0, (context.currentTime + (env.a1 / 10))); // envelope
-     gainNode1.gain.setValueAtTime((env.s0 / 100), context.currentTime + 10); // envelope
+     gainNode1.gain.linearRampToValueAtTime(1.0, (context.currentTime + (env.a[1] / 10))); // envelope
+     gainNode1.gain.setValueAtTime((env.s[0] / 100), context.currentTime + 10); // envelope
      //gainNode1.gain.linearRampToValueAtTime(0.0, context.currentTime + 10);
      splitter.connect(gainNode1, 1);
 
      gainNode0.connect(merger, 0, 0);
-     gainNode1.connect(merger, 0, 1);
+     gainNode1.connect(merger, 0, 0);
 
 
      source.connect(merger).connect(context.destination);
      source.start();
  });
 
+ //midi handler:
+
+ let midi = null; // global MIDIAccess object
+ function onMIDISuccess(midiAccess) {
+     console.log("MIDI ready!");
+     midi = midiAccess; // store in the global (in real usage, would probably keep in an object instance)
+     listInputsAndOutputs(midi);
+     startLoggingMIDIInput(midi);
+ }
+
+ function onMIDIFailure(msg) {
+     console.error(`Failed to get MIDI access - ${msg}`);
+ }
+
+ navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
+
+ function listInputsAndOutputs(midiAccess) {
+     for (const entry of midiAccess.inputs) {
+         const input = entry[1];
+         console.log(
+             `Input port [type:'${input.type}']` +
+             ` id:'${input.id}'` +
+             ` manufacturer:'${input.manufacturer}'` +
+             ` name:'${input.name}'` +
+             ` version:'${input.version}'`,
+         );
+     }
+
+     for (const entry of midiAccess.outputs) {
+         const output = entry[1];
+         console.log(
+             `Output port [type:'${output.type}'] id:'${output.id}' manufacturer:'${output.manufacturer}' name:'${output.name}' version:'${output.version}'`,
+         );
+     }
+ }
+
+ // list of 10 active notes:
+
+
+ function onMIDIMessage(event) {
+     let str = `MIDI message received at timestamp ${event.timeStamp}[${event.data.length} bytes]: `;
+     for (const character of event.data) {
+         str += `0x${character.toString(16)} `;
+     }
+     console.log(str);
+     if (event.data[0] === 144){
+         noteOn(event.data[1])
+     }
+     else if (event.data[0] === 128){
+         noteOff(event.data[1])
+     }
+ }
+
+ function startLoggingMIDIInput(midiAccess) {
+     midiAccess.inputs.forEach((entry) => {
+         entry.onmidimessage = onMIDIMessage;
+     });
+ }
+
+ /// Start and stop note function:
+ const keyboard = new AudioKeys();
+
+ keyboard.down( function(note) {
+     noteOn(note.note);
+ });
+
+ keyboard.up( function(note) {
+     noteOff(note.note);
+ });
+
+ const Voice = (function() {
+
+     //let localContext = new AudioContext({latencyHint: "interactive", sampleRate:44100});
+
+     function Voice(frequency, localContext){
+         this.frequency = frequency;
+
+         this.bufferArray = Array(4);
+         this.source = Array(4);
+         this.gainNode = Array(4);
+         this.merger = localContext.createChannelMerger(1);
+     }
+
+     Voice.prototype.start = function(localContext) {
+
+         for (let i = 0; i < 4; i++) {
+             if (buffers[i].active){
+                 this.source[i] = localContext.createBufferSource();
+                 this.bufferArray[i] = localContext.createBuffer(1, (SAMPLE_RATE / this.frequency), SAMPLE_RATE);
+                 console.log(this.bufferArray[i]);
+
+                 buffers[i].fillBuffer(this.bufferArray[i].getChannelData(0), this.frequency, SAMPLE_RATE, 16);
+                 console.log(buffers[i]);
+
+                 this.gainNode[i] = localContext.createGain();
+                 this.gainNode[i].gain.setValueAtTime(0.0, localContext.currentTime);
+                 this.gainNode[i].gain.linearRampToValueAtTime(0.1, localContext.currentTime + (env.a[i] / 100)); // envelope
+                 this.gainNode[i].gain.setValueAtTime((env.s[i] / 1000), localContext.currentTime + (env.a[i] / 10) + 1); // envelope
+                 //gainNode0.gain.linearRampToValueAtTime(0.0, context.currentTime + 10);
+                 this.source[i].buffer = this.bufferArray[i];
+                 this.source[i].connect(this.gainNode[i]);
+
+                 this.source[i].loop = true;
+
+                 this.gainNode[i].connect(this.merger, 0, 0);
+
+                 this.source[i].connect(this.merger).connect(localContext.destination);
+                 this.source[i].start();
+             }
+         }
+
+     }
+     Voice.prototype.stop = function(localContext) {
+         for (let i = 0; i < 4; i++) {if (buffers[i].active){this.source[i].stop();}}
+
+     }
+
+
+
+     return Voice;
+ })(context);
+
+ const voice = Array(126);
+
+ function noteOn(note) {
+     //const frequency
+     console.log(note);
+     const frequency = 440 * (2**((note-69) / 12));
+     console.log(frequency);
+
+     voice[note] = new Voice(frequency, context);
+     voice[note].start(context)
+ }
+
+ function noteOff(note) {
+
+     voice[note].stop();
+
+ }
 
 
  // Notes:

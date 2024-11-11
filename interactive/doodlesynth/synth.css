@@ -1,6 +1,6 @@
-.Root{
+:root{
     --selected-color: #000000;
-    --selected-color2: #dddddd;
+    --selected-color2: #eeeeee;
 }
 
 
@@ -45,7 +45,10 @@
     color: black;
 }
 
-
+.body{
+    color: var(--selected-color);
+    background-color: var(--selected-color2);
+}
 
 .px{
     --color1: #fff;
@@ -75,6 +78,31 @@
     border: 2px var(--selected-color);
     width: 500px;
     height: 200px;
+}
+
+.doodleMiddle{
+    background-color: var(--selected-color2);
+    background-image: url("../../src/img/presets.JPEG");
+    border: 2px var(--selected-color);
+    color: var(--selected-color);
+    outline: none;
+    padding: 5px;
+    margin: auto;
+}
+
+.left{
+    background-color: var(--selected-color2);
+    border: 3px var(--selected-color);
+    outline: none;
+    margin: auto;
+}
+
+.hitBox{
+    position: relative;
+    border: 0 red solid;
+    display: inline-block;
+
+    cursor: pointer;
 }
 
 @media only screen and (min-width: 1200px) {

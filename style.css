@@ -50,6 +50,15 @@
 	--header: auto;
 }
 
+.doodleSynth {
+	border: none;
+	--fill-color: #eeeeee;
+	--fill-color2: #dddddd;
+	--text1-color: #111111;
+	--border-type: solid;
+	--header: auto;
+}
+
 
 body{
 	color: var(--text1-color);
@@ -65,7 +74,6 @@ body{
 	border: 10px solid var(--border-color2);
 }
 
-// Link Stuff for the header! //
 ul {
 	list-style-type: none;
 }

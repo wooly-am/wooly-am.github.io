@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Doodle Synth!</title>
-    <link rel="stylesheet" href="../../lib/style.css">
+    <link rel="stylesheet" href="../../src/style.css">
     <link rel="stylesheet" href="synth.css">
-</head>
-<body class="plain-mono">
+
+    <script src="../../src/doodlesynth/audiokeys.js"></script>
+
+        </head>
+<body class="doodleSynth">
 
 <div class="bg-text" style="transform: rotate(-90deg); left: -300px; font-family: 'Rudelsberg'; font-weight: 100; font-style: normal">woolyam.net</div>
 
 <div class="container">
+    <div class="left">
 <div class="canvas" style="margin-left: 5px;" id="canvas">
     <div class="column" id="32">
         <div class="px" id="0"></div>
@@ -1105,9 +1109,7 @@
 
         </div>
 
-    <div class="canvas" style="margin-right: 5px;">
-        this is where the animals will be
-    </div>
+
 
 <div class="envelope">
 
@@ -1138,13 +1140,32 @@
 <p></p>
 
 <button id="play">Play</button>
+
 </div>
 
+    <div class="doodleMiddle" style="margin-right: 5px; float: right; width: 575px; ">
+        <h1 style="margin-left: 190px">
+            Presets:
+        </h1>
+        <div class="hitBox" style="width: 130px; height: 230px; top: -75px; left: 10px"></div>
+        <div class="hitBox" style="width: 170px; height: 210px; top: 5px; left: 25px"></div>
+        <div class="hitBox" style="width: 160px; height: 240px; top: -80px; left: 65px"></div>
+        <div class="hitBox" style="width: 130px; height: 210px; top: -70px; left: 10px"></div>
+        <div class="hitBox" style="width: 210px; height: 210px; top: 35px; left: 40px"></div>
+        <div class="hitBox" style="width: 140px; height: 190px; top: -90px; left: 50px"></div>
+        <div class="hitBox" style="width: 130px; height: 210px; top: -40px; left: 30px"></div>
+        <div class="hitBox" style="width: 230px; height: 190px; top: 40px; left: 50px"></div>
+        <div class="hitBox" style="width: 110px; height: 210px; top: -20px; left: 60px"></div>
+        <div>.</div>
+
+    </div>
+
+</div>
 <div class="bg-text" style="transform: rotate(90deg); right: -300px; font-family: 'Rudelsberg'; font-weight: 100; font-style: normal">woolyam.net</div>
 
 </body>
 
 
-<script src="./main.js"></script>
+<script src="../../src/doodlesynth/main.js"></script>
 
 </html>
