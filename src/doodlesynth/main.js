@@ -114,6 +114,7 @@ const SAMPLE_COUNT = SAMPLE_RATE * 2;
 var completeBuffer;
 const env = new envelope();
 var prevAmplitude = 0; //cosmetic
+const SPEED = 16; // add knob 0 -> 32?
 
 //Populate channels
  buffers[0] = new bufferSynth('black');
@@ -382,7 +383,7 @@ form.addEventListener('change', () => {
          this.bufferArray = Array(4);
          this.source = Array(4);
          this.gainNode = Array(4);
-         this.merger = localContext.createChannelMerger(1);
+         //this.merger = localContext.createChannelMerger(1);
      }
 
      Voice.prototype.start = function(localContext) {
@@ -393,22 +394,24 @@ form.addEventListener('change', () => {
                  this.bufferArray[i] = localContext.createBuffer(1, (SAMPLE_RATE / this.frequency), SAMPLE_RATE);
                  console.log(this.bufferArray[i]);
 
-                 buffers[i].fillBuffer(this.bufferArray[i].getChannelData(0), this.frequency, SAMPLE_RATE, 16);
+                 buffers[i].fillBuffer(this.bufferArray[i].getChannelData(0), this.frequency, SAMPLE_RATE, SPEED);
                  console.log(buffers[i]);
 
                  this.gainNode[i] = localContext.createGain();
                  this.gainNode[i].gain.setValueAtTime(0.0, localContext.currentTime);
-                 this.gainNode[i].gain.linearRampToValueAtTime(0.1, localContext.currentTime + (env.a[i] / 100)); // envelope
-                 this.gainNode[i].gain.setValueAtTime((env.s[i] / 1000), localContext.currentTime + (env.a[i] / 10) + 1); // envelope
+                 if (env.a[i] > 0){
+                 this.gainNode[i].gain.linearRampToValueAtTime(1.0, localContext.currentTime + (env.a[i]  / 50)); // envelope
+                 }
+                 this.gainNode[i].gain.setValueAtTime((env.s[i] / 100), localContext.currentTime + (env.a[i] / 50)); // envelope
                  //gainNode0.gain.linearRampToValueAtTime(0.0, context.currentTime + 10);
                  this.source[i].buffer = this.bufferArray[i];
                  this.source[i].connect(this.gainNode[i]);
 
                  this.source[i].loop = true;
 
-                 this.gainNode[i].connect(this.merger, 0, 0);
-
-                 this.source[i].connect(this.merger).connect(localContext.destination);
+                 //this.gainNode[i].connect(this.merger, 0, 0);
+                 //this.source[i].connect(this.merger).connect(localContext.destination);
+                 this.gainNode[i].connect(localContext.destination);
                  this.source[i].start();
              }
          }
