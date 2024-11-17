@@ -99,7 +99,74 @@ function sine(){
 
 }
 
+ function tabClick(color){
+     if (color === "black") {
+         attack.val(100 - env.a[0]);
+         sustain.val(100 - env.s[0]);
+         decay.val(100 - env.d[0]);
+         document.documentElement.style.setProperty('--selected-color', '#000000')
+         document.documentElement.style.setProperty('--selected-color2', '#eeeeee')
+         document.documentElement.style.setProperty('--selected-border', '#000000')
 
+     }
+
+     if (color === "red") {
+         attack.val(100 - env.a[1]);
+         sustain.val(100 - env.s[1]);
+         decay.val(100 - env.d[1]);
+         document.documentElement.style.setProperty('--selected-color', '#220000')
+         document.documentElement.style.setProperty('--selected-color2', '#ff8888')
+         document.documentElement.style.setProperty('--selected-border', '#221111')
+
+     }
+
+     if (color === "blue") {
+         attack.val(100 - env.a[2]);
+         sustain.val(100 - env.s[2]);
+         decay.val(100 - env.d[2]);
+         document.documentElement.style.setProperty('--selected-color', '#000022')
+         document.documentElement.style.setProperty('--selected-color2', '#8888ff')
+         document.documentElement.style.setProperty('--selected-border', '#333355')
+
+     }
+
+     if (color === "yellow") {
+         attack.val(100 - env.a[3]);
+         sustain.val(100 - env.s[3]);
+         decay.val(100 - env.d[3]);
+         document.documentElement.style.setProperty('--selected-color', '#333300')
+         document.documentElement.style.setProperty('--selected-color2', '#ff9966')
+         document.documentElement.style.setProperty('--selected-border', '#444400')
+
+     }
+
+ }
+
+function loadEnvelope(){
+    switch (COLOR){
+        case "black":
+            attack.val(100 - env.a[0]);
+            sustain.val(100 - env.s[0]);
+            decay.val(100 - env.d[0]);
+            break;
+        case "red":
+            attack.val(100 - env.a[1]);
+            sustain.val(100 - env.s[1]);
+            decay.val(100 - env.d[1]);
+            break;
+        case "blue":
+            attack.val(100 - env.a[2]);
+            sustain.val(100 - env.s[2]);
+            decay.val(100 - env.d[2]);
+            break;
+        case "yellow":
+            attack.val(100 - env.a[3]);
+            sustain.val(100 - env.s[3]);
+            decay.val(100 - env.d[3]);
+            break;
+    }
+
+}
 
 const CHANNELS = 4;
 const canvas = document.getElementById('canvas');
@@ -135,21 +202,44 @@ var prevAmplitude = 0; //cosmetic
  blackButton.addEventListener('click', function() {
      COLOR = 'black';
      ID = 0;
+     attack.val(100 - env.a[0]);
+     sustain.val(100 - env.s[0]);
+     decay.val(100 - env.d[0]);
+     document.documentElement.style.setProperty('--selected-color', '#000000')
+     document.documentElement.style.setProperty('--selected-color2', '#eeeeee')
+     document.documentElement.style.setProperty('--selected-border', '#000000')
      console.log(COLOR);
  });
  redButton.addEventListener('click', function() {
      COLOR = 'red';
-     ID = 2;
-     console.log(COLOR);
+     ID = 1;
+     attack.val(100 - env.a[1]);
+     sustain.val(100 - env.s[1]);
+     decay.val(100 - env.d[1]);
+     document.documentElement.style.setProperty('--selected-color', '#220000')
+     document.documentElement.style.setProperty('--selected-color2', '#ff8888')
+     document.documentElement.style.setProperty('--selected-border', '#221111')
  });
  blueButton.addEventListener('click', function() {
      COLOR = 'blue';
-     ID = 3;
+     ID = 2;
+     attack.val(100 - env.a[2]);
+     sustain.val(100 - env.s[2]);
+     decay.val(100 - env.d[2]);
+     document.documentElement.style.setProperty('--selected-color', '#000022')
+     document.documentElement.style.setProperty('--selected-color2', '#8888ff')
+     document.documentElement.style.setProperty('--selected-border', '#333355')
      console.log(COLOR);
  });
  yellowButton.addEventListener('click', function() {
      COLOR = 'yellow';
-     ID = 4;
+     ID = 3;
+     attack.val(100 - env.a[3]);
+     sustain.val(100 - env.s[3]);
+     decay.val(100 - env.d[3]);
+     document.documentElement.style.setProperty('--selected-color', '#333300')
+     document.documentElement.style.setProperty('--selected-color2', '#ff9966')
+     document.documentElement.style.setProperty('--selected-border', '#444400')
      console.log(COLOR);
  });
 
@@ -247,9 +337,9 @@ canvas.addEventListener('mouseup', () => {
     completeBuffer = context.createBuffer(CHANNELS, SAMPLE_COUNT, SAMPLE_RATE);
 });
 
-form.addEventListener('change', () => {
-     env.update(ID, document.forms["env"]["a"].value, document.forms["env"]["s"].value, document.forms["env"]["d"].value);
-     console.log("updated envelope");
+document.getElementById('envelope').addEventListener('mouseover', () => {
+     env.update(ID, 100 - attack.val(null), 100 - sustain.val(null), 100 - decay.val(null));
+     console.log("updated envelope", attack.val(null), sustain.val(null), decay.val(null));
  });
 
 
@@ -257,14 +347,14 @@ form.addEventListener('change', () => {
 
 */
 
- let play = document.getElementById('play');
+ let play = document.getElementById('test');
 
  play.addEventListener('click', function() {
 
      const frequency = 440;
      console.log('i');
      for (let i = 0; i < 4; i++) {
-         buffers[i].fillBuffer(completeBuffer.getChannelData(i), frequency, SAMPLE_RATE, 16);
+         buffers[i].fillBuffer(completeBuffer.getChannelData(i), frequency, SAMPLE_RATE, 32);
          console.log(buffers[i]);
      }
 
@@ -382,7 +472,6 @@ form.addEventListener('change', () => {
          this.bufferArray = Array(4);
          this.source = Array(4);
          this.gainNode = Array(4);
-         this.merger = localContext.createChannelMerger(1);
      }
 
      Voice.prototype.start = function(localContext) {
@@ -393,23 +482,25 @@ form.addEventListener('change', () => {
                  this.bufferArray[i] = localContext.createBuffer(1, (SAMPLE_RATE / this.frequency), SAMPLE_RATE);
                  console.log(this.bufferArray[i]);
 
-                 buffers[i].fillBuffer(this.bufferArray[i].getChannelData(0), this.frequency, SAMPLE_RATE, 16);
+                 buffers[i].fillBuffer(this.bufferArray[i].getChannelData(0), this.frequency, SAMPLE_RATE, 32);
                  console.log(buffers[i]);
 
                  this.gainNode[i] = localContext.createGain();
                  this.gainNode[i].gain.setValueAtTime(0.0, localContext.currentTime);
-                 this.gainNode[i].gain.linearRampToValueAtTime(0.1, localContext.currentTime + (env.a[i] / 100)); // envelope
-                 this.gainNode[i].gain.setValueAtTime((env.s[i] / 1000), localContext.currentTime + (env.a[i] / 10) + 1); // envelope
+                 if (env.a[i] > 0){
+                     this.gainNode[i].gain.linearRampToValueAtTime(1.0, localContext.currentTime + (env.a[i]  / 50)); // envelope
+                 }
+                 this.gainNode[i].gain.setValueAtTime((env.s[i] / 100), localContext.currentTime + (env.a[i] / 50)); // envelope
                  //gainNode0.gain.linearRampToValueAtTime(0.0, context.currentTime + 10);
                  this.source[i].buffer = this.bufferArray[i];
                  this.source[i].connect(this.gainNode[i]);
 
                  this.source[i].loop = true;
 
-                 this.gainNode[i].connect(this.merger, 0, 0);
-
-                 this.source[i].connect(this.merger).connect(localContext.destination);
+                 this.gainNode[i].connect(localContext.destination);
                  this.source[i].start();
+
+                 console.log(env.a[i], env.s[i], env.d[i])
              }
          }
 

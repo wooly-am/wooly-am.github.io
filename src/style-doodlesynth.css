@@ -1,0 +1,193 @@
+:root{
+    --selected-color: #000000;
+    --selected-color2: #dddddd;
+    --selected-border: #000000;
+}
+
+
+.bg-text{
+    display: inline;
+    position: absolute;
+    top: 40%;
+    z-index: -1;
+
+    font-family: Rudelsburg, serif;
+    font-size: 1300%;
+    color: #f1f1f1;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+}
+
+.main{
+    background-color: white;
+    border: 1px solid black;
+    padding: 5px;
+    margin: auto;
+    display: block;
+    overflow: auto;
+    border-radius: 2px;
+}
+
+.right{
+    background-color: orange;
+    background-image: url("../src/img/presets.JPEG");
+    background-repeat: no-repeat;
+    border: 1px solid orange;
+    display: inline;
+    vertical-align: top;
+    width: 545px;
+    overflow: auto;
+    padding: 10px;
+    box-shadow: #666666 4px 4px 7px;
+}
+
+.left{
+    float: left;
+    background-color: white;
+    border: 1px solid orangered;
+    display: inline;
+    vertical-align: top;
+    width: 545px;
+    overflow: auto;
+    padding: 10px;
+    box-shadow: #666666 4px 4px 7px;
+}
+
+.section{
+    border: 2px solid var(--selected-border);
+    background-color: var(--selected-color2);
+    overflow: auto;
+    box-shadow: #666666 4px 4px 7px;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+
+}
+
+.c-section{
+    border: 2px solid var(--selected-border);
+    background-color: var(--selected-color2);
+    overflow: auto;
+    box-shadow: #666666 4px 4px 7px;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.canvas{
+    background-color: #bbb;
+    width: 480px;
+    height: 480px;
+    display: inline-block;
+    border: 2px black solid;
+    margin: -1px;
+}
+
+.p1{
+    font-family: Rubik, sans-serif;
+}
+
+.p2{
+    font-family: Brush Script MT, cursive;
+    display: inline;
+    font-size: 45px;
+}
+.p3{
+    font-family: Garamond, Times, serif;
+    display: inline;
+    font-size: 45px;
+}
+
+.tab{
+
+    float: right;
+    width: 30px;
+    height: 100%;
+
+    display: inline;
+}
+
+.tab button {
+    display: block;
+    background-color: #222;
+    color: white;
+    padding: 15px 15px 0 0;
+    margin: 30px 0px;
+    height: 45px;
+    width: 80px;
+    border: 2px black solid;
+    outline: none;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    top: -13px;
+    right: 28px;
+    transform: rotate(90deg);
+
+    border-radius: 10px 10px 0 0;
+}
+
+.tab button:hover {
+    border: #ff0 solid 5px;
+    border-bottom: 0;
+}
+
+.px{
+    --color1: #fff;
+    --color2: #fff;
+    --color3: #fff;
+    --color4: #fff;
+
+    background: repeating-linear-gradient(0deg, var(--color1) 0px 0px, var(--color2) 1px 0px, var(--color3) 2px 0px, var(--color4) 3px 0px);
+    width: 13px;
+    height: 13px;
+    margin: 2px;
+    cursor: url("../src/img/pencil.png"), pointer;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+}
+.column{
+    width:15px;
+
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    display: inline-block;
+    margin: -2px;
+}
+
+.hitBox{
+    position: relative;
+    border: 0 red solid;
+    display: inline-block;
+
+    cursor: pointer;
+
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+@font-face {
+    font-family: 'Rudelsberg';
+    src: url('fonts/subset-RudelsbergRegular.woff2') format('woff2'),
+    url('fonts/subset-RudelsbergRegular.woff') format('woff');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
+
+@media only screen and (min-width: 1200px) {
+    .main { width: 1150px; }
+    .left { float : left; }
+    .right { float : right; }
+}
+
+@media only screen and (max-width: 1200px) {
+    .main { max-width: 575px; }
+    .left { float : left; }
+    .right { float : left; }
+}
