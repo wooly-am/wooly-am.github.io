@@ -2,6 +2,8 @@
     --selected-color: #000000;
     --selected-color2: #dddddd;
     --selected-border: #000000;
+
+    image-rendering: pixelated;
 }
 
 
@@ -34,7 +36,7 @@
     background-color: orange;
     background-image: url("../src/img/presets.JPEG");
     background-repeat: no-repeat;
-    border: 1px solid orange;
+    border: 0px solid orange;
     display: inline;
     vertical-align: top;
     width: 545px;
@@ -46,7 +48,7 @@
 .left{
     float: left;
     background-color: white;
-    border: 1px solid orangered;
+    border: 0px solid orangered;
     display: inline;
     vertical-align: top;
     width: 545px;
@@ -169,6 +171,32 @@
 
     user-select: none;
     -webkit-user-select: none;
+}
+
+.schro{
+    float: right;
+    position: relative;
+    bottom: -10px;
+    width: 128px;
+    height: 128px;
+    background: url(../src/img/SCHROEDER-Sheet-50.png) left center;
+    image-rendering: pixelated;
+    cursor: pointer;
+
+
+    animation: idle 0.5s steps(2) infinite;
+
+}
+
+
+
+@keyframes idle{
+    100% { background-position: -256px;}
+}
+
+@keyframes talk{
+    0% { background-position: -256px;}
+    100% { background-position: -512px;}
 }
 
 @font-face {

@@ -343,6 +343,9 @@ document.getElementById('envelope').addEventListener('mouseover', () => {
      console.log("updated envelope", attack.val(null), sustain.val(null), decay.val(null));
  });
 
+document.getElementById("schro").addEventListener('click', () => {
+
+})
 
 /* playback & Audio handling
 
