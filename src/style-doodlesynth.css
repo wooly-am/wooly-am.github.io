@@ -1,9 +1,10 @@
 :root{
     --selected-color: #000000;
-    --selected-color2: #dddddd;
+    --selected-color2: #eeeeee77;
     --selected-border: #000000;
 
     image-rendering: pixelated;
+    background: url("img/oak-mdf.jpg") repeat;
 }
 
 
@@ -11,15 +12,29 @@
     display: inline;
     position: absolute;
     top: 40%;
-    z-index: -1;
+    z-index: -2;
 
     font-family: Rudelsburg, serif;
-    font-size: 1300%;
-    color: #f1f1f1;
+    font-size: 1500%;
+    color: #0005;
+    mix-blend-mode: darken;
 
     user-select: none;
     -webkit-user-select: none;
 
+}
+
+.bg-text2{
+    display: inline;
+    position: absolute;
+    top: 40%;
+    z-index: -1;
+    color: #D1AA7855;
+    mix-blend-mode: lighten;
+
+    font-size: 1500%;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .main{
@@ -47,7 +62,7 @@
 
 .left{
     float: left;
-    background-color: white;
+    background-image: url("../src/img/paper-texture.jpg");
     border: 0px solid orangered;
     display: inline;
     vertical-align: top;
@@ -58,24 +73,29 @@
 }
 
 .section{
-    border: 2px solid var(--selected-border);
+    border: 0px solid var(--selected-border);
     background-color: var(--selected-color2);
+
     overflow: auto;
     box-shadow: #666666 4px 4px 7px;
     margin-bottom: 15px;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 1px;
 
 }
 
+.section > *{
+    opacity: 1;
+}
+
 .c-section{
-    border: 2px solid var(--selected-border);
+    border: 0px solid var(--selected-border);
     background-color: var(--selected-color2);
     overflow: auto;
     box-shadow: #666666 4px 4px 7px;
     margin-bottom: 15px;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 1px;
 }
 
 .canvas{
@@ -176,7 +196,9 @@
 .schro{
     float: right;
     position: relative;
-    bottom: -10px;
+    display: inline-block;
+    left: 5px;
+    bottom: -20px;
     width: 128px;
     height: 128px;
     background: url(../src/img/SCHROEDER-Sheet-50.png) left center;
@@ -188,7 +210,27 @@
 
 }
 
+.schro:hover{
+    animation: talk 0.3s steps(2) infinite;
+}
 
+.tooltip{
+    position: relative;
+    display: inline-block;
+    padding: 1px 7px 0 7px ;
+    background-color: #9995;
+    border: 3px #3335 solid;
+    visibility: hidden;
+
+    height: 20px;
+    text-align: center;
+    top: -8px;
+    float: right;
+
+
+    border-radius: 15px 0 15px 15px;
+
+}
 
 @keyframes idle{
     100% { background-position: -256px;}

@@ -181,7 +181,7 @@ const SAMPLE_COUNT = SAMPLE_RATE * 2;
 var completeBuffer;
 const env = new envelope();
 var prevAmplitude = 0; //cosmetic
-const SPEED = 16; // add knob 0 -> 32?
+ var compressor;
 
 //Populate channels
  buffers[0] = new bufferSynth('black');
@@ -207,7 +207,7 @@ const SPEED = 16; // add knob 0 -> 32?
      sustain.val(100 - env.s[0]);
      decay.val(100 - env.d[0]);
      document.documentElement.style.setProperty('--selected-color', '#000000')
-     document.documentElement.style.setProperty('--selected-color2', '#eeeeee')
+     document.documentElement.style.setProperty('--selected-color2', '#eeeeee77')
      document.documentElement.style.setProperty('--selected-border', '#000000')
      console.log(COLOR);
  });
@@ -218,7 +218,7 @@ const SPEED = 16; // add knob 0 -> 32?
      sustain.val(100 - env.s[1]);
      decay.val(100 - env.d[1]);
      document.documentElement.style.setProperty('--selected-color', '#220000')
-     document.documentElement.style.setProperty('--selected-color2', '#ff8888')
+     document.documentElement.style.setProperty('--selected-color2', '#ff888877')
      document.documentElement.style.setProperty('--selected-border', '#221111')
  });
  blueButton.addEventListener('click', function() {
@@ -228,7 +228,7 @@ const SPEED = 16; // add knob 0 -> 32?
      sustain.val(100 - env.s[2]);
      decay.val(100 - env.d[2]);
      document.documentElement.style.setProperty('--selected-color', '#000022')
-     document.documentElement.style.setProperty('--selected-color2', '#8888ff')
+     document.documentElement.style.setProperty('--selected-color2', '#8888ff77')
      document.documentElement.style.setProperty('--selected-border', '#333355')
      console.log(COLOR);
  });
@@ -239,7 +239,7 @@ const SPEED = 16; // add knob 0 -> 32?
      sustain.val(100 - env.s[3]);
      decay.val(100 - env.d[3]);
      document.documentElement.style.setProperty('--selected-color', '#333300')
-     document.documentElement.style.setProperty('--selected-color2', '#ff9966')
+     document.documentElement.style.setProperty('--selected-color2', '#ff996677')
      document.documentElement.style.setProperty('--selected-border', '#444400')
      console.log(COLOR);
  });
@@ -313,11 +313,17 @@ function resetColumn(column, row, color, prev) {
 }
 
 
+
+ document.getElementById("schro").addEventListener('click', () => {
+    document.getElementById("tooltip").style.setProperty("visibility", "visible")
+ });
+
 canvas.addEventListener('mousedown', (e) => {
     isClick = true;
     // create audio context, but only create buffers when mouseup
     if (!context) {
         newContext();
+        compressor = context.createDynamicsCompressor();
 
     }
 
@@ -355,45 +361,10 @@ document.getElementById("schro").addEventListener('click', () => {
 
  play.addEventListener('click', function() {
 
-     const frequency = 440;
-     console.log('i');
-     for (let i = 0; i < 4; i++) {
-         buffers[i].fillBuffer(completeBuffer.getChannelData(i), frequency, SAMPLE_RATE, 32);
-         console.log(buffers[i]);
-     }
-
-     const source = context.createBufferSource();
-     source.buffer = completeBuffer;
-     const splitter = context.createChannelSplitter(4);
-     source.connect(splitter);
-     const merger = context.createChannelMerger(1);
-     /*const gainNodes = Array(4);
-
-     for (i = 0; i > 4; i++){
-         gainNodes[i] = context.createGain();
-
-     }*/
-
-     const gainNode0 = context.createGain();
-     gainNode0.gain.setValueAtTime(0.0, context.currentTime + 0);
-     gainNode0.gain.linearRampToValueAtTime(1.0, context.currentTime + (env.a[0] / 10)); // envelope
-     gainNode0.gain.setValueAtTime((env.s[0] / 100), context.currentTime + 10); // envelope
-     //gainNode0.gain.linearRampToValueAtTime(0.0, context.currentTime + 10);
-     splitter.connect(gainNode0, 0);
-
-     const gainNode1 = context.createGain();
-     gainNode1.gain.setValueAtTime(0.0, context.currentTime + 0);
-     gainNode1.gain.linearRampToValueAtTime(1.0, (context.currentTime + (env.a[1] / 10))); // envelope
-     gainNode1.gain.setValueAtTime((env.s[0] / 100), context.currentTime + 10); // envelope
-     //gainNode1.gain.linearRampToValueAtTime(0.0, context.currentTime + 10);
-     splitter.connect(gainNode1, 1);
-
-     gainNode0.connect(merger, 0, 0);
-     gainNode1.connect(merger, 0, 0);
-
-
-     source.connect(merger).connect(context.destination);
-     source.start();
+     noteOn(69);
+     setTimeout(function() {
+         noteOff(69);
+     }, 1000);
  });
 
  //midi handler:
@@ -498,12 +469,14 @@ document.getElementById("schro").addEventListener('click', () => {
                  }
                  this.gainNode[i].gain.setValueAtTime((env.s[i] / 100), localContext.currentTime + (env.a[i] / 50)); // envelope
                  //gainNode0.gain.linearRampToValueAtTime(0.0, context.currentTime + 10);
+
                  this.source[i].buffer = this.bufferArray[i];
                  this.source[i].connect(this.gainNode[i]);
 
                  this.source[i].loop = true;
 
-                 this.gainNode[i].connect(localContext.destination);
+                 this.gainNode[i].connect(compressor);
+                 compressor.connect(localContext.destination);
                  this.source[i].start();
 
                  console.log(env.a[i], env.s[i], env.d[i])
@@ -512,7 +485,26 @@ document.getElementById("schro").addEventListener('click', () => {
 
      }
      Voice.prototype.stop = function(localContext) {
-         for (let i = 0; i < 4; i++) {if (buffers[i].active){this.source[i].stop();}}
+         for (let i = 0; i < 4; i++) {
+             if (buffers[i].active){
+                 if (env.d[i] === 0){
+                     this.source[i].stop();
+                 }
+                 else {
+
+                     const now = localContext.currentTime;
+                     const releaseTime = localContext.currentTime + (env.d[i]/50);
+
+                     this.gainNode[i].gain.cancelScheduledValues(now);
+
+                     this.gainNode[i].gain.setValueAtTime(this.gainNode[i].gain.value, now);
+                     this.gainNode[i].gain.linearRampToValueAtTime(0.0, releaseTime); // envelope
+
+                     this.source[i].stop(releaseTime);
+                 }
+             }}
+
+
 
      }
 
@@ -535,7 +527,7 @@ document.getElementById("schro").addEventListener('click', () => {
 
  function noteOff(note) {
 
-     voice[note].stop();
+     voice[note].stop(context);
 
  }
 
