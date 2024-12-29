@@ -282,6 +282,10 @@ a:hover{
     -webkit-user-select: none;
 }
 
+.hitBox:hover{
+    background-color: #eeee0033;
+}
+
 .schro{
     float: right;
     position: relative;
