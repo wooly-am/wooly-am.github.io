@@ -283,7 +283,7 @@ function newContext() {
      }, cooldown * 1000)
  }
 
-
+speak("Click me for tips!", 30);
 
 /*button.onclick = () => {
     COLOR = button.innerHTML;
