@@ -9,8 +9,8 @@
 
         if (name === "black") {this.id = 0;}
         if (name === "red") {this.id = 1;}
-        if (name === "blue") {this.id = 2;}
-        if (name === "yellow") {this.id = 3;}
+        if (name === "yellow") {this.id = 2;}
+        if (name === "blue") {this.id = 3;}
 
     }
 
@@ -18,6 +18,15 @@
         // Takes the non-Normalised amplitude.
         this.active = true;
         this.amplitude[index] = (value - 15.5) / 15.5
+    }
+
+    activate(){
+        this.active = true;
+    }
+
+    deactivate(){
+        this.active = false;
+        this.amplitude = new Array(32).fill(0.0);
     }
 
     getValue(column){
@@ -38,7 +47,7 @@
             throw "animation not currently supported";
         }
         else if (this.active) {
-            console.log("active")
+            //console.log("active")
             const dx = 1 / (SAMPLE_RATE * freq);
             //const count = 10 * (SAMPLE_RATE / freq)
 
@@ -56,138 +65,225 @@
 class envelope{
     constructor(){
         this.a = [0,0,0,0];
-        this.s = [100,100,100,100];
         this.d = [0,0,0,0];
+        this.s = [99,99,99,99];
+        this.r = [0,0,0,0];
+
+        document.getElementById("a").value = 0;
+        document.getElementById("d").value = 0;
+        document.getElementById("s").value = 99;
+        document.getElementById("r").value = 0;
     }
 
-    update(id, a, s, d){
-        switch (id){
-            case 0:
-                this.a[0] = a;
-                this.s[0] = s;
-                this.d[0] = d;
-                break;
-            case 1:
-                this.a[1] = a;
-                this.s[1] = s;
-                this.d[1] = d;
-                break;
-            case 2:
-                this.a[2] = a;
-                this.s[2] = s;
-                this.d[2] = d;
-                break;
-            case 3:
-                this.a[3] = a;
-                this.s[3] = s;
-                this.d[3] = d;
-                break;
-        }
+    update(id, a, d, s, r){
+        console.log(id,a,s,d,r);
+        this.a[id] = a;
+        this.d[id] = d;
+        this.s[id] = s;
+        this.r[id] = r;
     }
+
 }
 
-// audio functions:
+// Constants and Init:
+
+ const CHANNELS = 4;
+ const SAMPLE_RATE = 44100;
+ const SAMPLE_COUNT = SAMPLE_RATE * 2;
+ let ID = 0;
+
+ let isClick = false;
+ let msgNum = 0;
+
+ const env = new envelope();
+ const buffers = new Array(CHANNELS);
+
+ var context;
+ var compressor;
+ var completeBuffer;
+
+ const canvas = document.getElementById('canvas');
+
+ // Presets:
+ const sine = [-0.0967741935483871,-0.22580645161290322,-0.41935483870967744,-0.6129032258064516,-0.7419354838709677,-0.8709677419354839,-0.9354838709677419,-1,-1,-1,-0.9354838709677419,-0.8709677419354839,-0.7419354838709677,-0.6129032258064516,-0.41935483870967744,-0.16129032258064516,0.03225806451612903,0.22580645161290322,0.41935483870967744,0.6129032258064516,0.7419354838709677,0.8709677419354839,0.9354838709677419,1,1,0.9354838709677419,0.8709677419354839,0.7419354838709677,0.6129032258064516,0.41935483870967744,0.22580645161290322,0.03225806451612903];
+ const square = [-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419];
+ const saw = [-0.03225806451612903,-0.0967741935483871,-0.16129032258064516,-0.22580645161290322,-0.2903225806451613,-0.3548387096774194,-0.41935483870967744,-0.4838709677419355,-0.5483870967741935,-0.6129032258064516,-0.6774193548387096,-0.7419354838709677,-0.8064516129032258,-0.8709677419354839,-0.9354838709677419,-1,1,0.9354838709677419,0.8709677419354839,0.8064516129032258,0.7419354838709677,0.6774193548387096,0.6129032258064516,0.5483870967741935,0.4838709677419355,0.41935483870967744,0.3548387096774194,0.2903225806451613,0.22580645161290322,0.16129032258064516,0.0967741935483871,0.03225806451612903];
+
+const fun1 = [[ -0.0967741935483871,-0.22580645161290322,-0.41935483870967744,-0.6129032258064516,-0.7419354838709677,-0.8709677419354839,-0.9354838709677419,-1,-1,-1,-0.9354838709677419,-0.8709677419354839,-0.7419354838709677,-0.6129032258064516,-0.41935483870967744,-0.16129032258064516 ,0.03225806451612903 ,0.22580645161290322 ,0.41935483870967744 ,0.6129032258064516 ,0.7419354838709677 ,0.8709677419354839 ,0.9354838709677419 ,1 ,1 ,0.9354838709677419 ,0.8064516129032258 ,0.7419354838709677 ,0.6129032258064516 ,0.41935483870967744 ,0.22580645161290322 ,0.03225806451612903],[ 0.8064516129032258 ,0.8709677419354839 ,0.6774193548387096 ,1 ,0.8064516129032258 ,0.8709677419354839 ,0.6774193548387096 ,1 ,0.8064516129032258 ,0.7419354838709677 ,0.6774193548387096 ,0.7419354838709677 ,0.8064516129032258 ,0.7419354838709677 ,0.9354838709677419 ,0.8064516129032258 ,0.8064516129032258 ,0.8709677419354839 ,0.6774193548387096 ,1 ,0.8064516129032258 ,0.8709677419354839 ,0.6774193548387096 ,1 ,0.8064516129032258 ,0.8709677419354839 ,0.6774193548387096 ,1 ,0.8064516129032258 ,0.8709677419354839 ,0.6774193548387096 ,1],[ -0.03225806451612903 ,-0.03225806451612903 ,-0.0967741935483871 ,-0.0967741935483871 ,-0.16129032258064516 ,-0.16129032258064516 ,-0.22580645161290322 ,-0.22580645161290322 ,-0.2903225806451613 ,-0.2903225806451613 ,-0.3548387096774194 ,-0.3548387096774194 ,-0.41935483870967744 ,-0.41935483870967744 ,-0.4838709677419355 ,-0.4838709677419355 ,0.4838709677419355 ,0.4838709677419355 ,0.41935483870967744 ,0.41935483870967744 ,0.3548387096774194 ,0.3548387096774194 ,0.2903225806451613 ,0.2903225806451613 ,0.22580645161290322 ,0.22580645161290322 ,0.16129032258064516 ,0.16129032258064516 ,0.0967741935483871 ,0.0967741935483871 ,0.03225806451612903 ,0.03225806451612903]];
+ const fun1Env = [[23,0,99,15],[12,8,29,9],[44,0,99,10]];
+const fun2 = [[-0.03225806451612903,-0.16129032258064516,-0.41935483870967744,-0.6129032258064516,-0.7419354838709677,-0.8064516129032258,-0.8709677419354839,-0.9354838709677419,-0.9354838709677419,-0.8709677419354839,-0.8709677419354839,-0.7419354838709677,-0.4838709677419355,-0.2903225806451613,-0.0967741935483871,0.03225806451612903,0.0967741935483871,0.0967741935483871,0.03225806451612903,-0.0967741935483871,-0.0967741935483871,-0.0967741935483871,-0.03225806451612903,0.41935483870967744,0.6129032258064516,0.7419354838709677,0.8064516129032258,0.8064516129032258,0.7419354838709677,0.6774193548387096,0.5483870967741935,0.3548387096774194],[0.0967741935483871,0.16129032258064516,-0.03225806451612903,-0.3548387096774194,-0.6129032258064516,-0.6774193548387096,-0.6129032258064516,-0.0967741935483871,0.22580645161290322,0.3548387096774194,0.4838709677419355,0.4838709677419355,0.41935483870967744,0.2903225806451613,0.16129032258064516,-0.03225806451612903,-0.2903225806451613,-0.5483870967741935,-0.6774193548387096,-0.7419354838709677,-0.7419354838709677,-0.6774193548387096,-0.6129032258064516,-0.4838709677419355,-0.3548387096774194,-0.2903225806451613,-0.22580645161290322,-0.16129032258064516,-0.16129032258064516,-0.16129032258064516,-0.16129032258064516,-0.22580645161290322],[0.2903225806451613,0.22580645161290322,0.0967741935483871,0.03225806451612903,0.2903225806451613,0.16129032258064516,0.0967741935483871,0.03225806451612903,0.22580645161290322,-0.0967741935483871,-0.2903225806451613,0.3548387096774194,0.2903225806451613,-0.0967741935483871,-0.3548387096774194,0.4838709677419355,0.41935483870967744,0.3548387096774194,-0.16129032258064516,-0.5483870967741935,0.41935483870967744,0.3548387096774194,0.16129032258064516,-0.0967741935483871,0.4838709677419355,0.41935483870967744,0.16129032258064516,-0.2903225806451613,0.5483870967741935,0.41935483870967744,0.0967741935483871,-0.22580645161290322],[-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322,-0.0967741935483871,0.22580645161290322]];
+const fun2Env = [[14,0,99,5],[17,0,99,5],[23,0,99,5],[30,0,99,5]];
+const flute = [[-0.0967741935483871,-0.22580645161290322,-0.41935483870967744,-0.6129032258064516,-0.7419354838709677,-0.8709677419354839,-0.9354838709677419,-1,-1,-1,-0.9354838709677419,-0.8709677419354839,-0.8064516129032258,-0.6774193548387096,-0.4838709677419355,-0.2903225806451613,-0.16129032258064516,0.22580645161290322,0.41935483870967744,0.4838709677419355,0.7419354838709677,0.8709677419354839,0.8709677419354839,0.8709677419354839,0.8709677419354839,0.8709677419354839,0.8709677419354839,0.7419354838709677,0.6129032258064516,0.41935483870967744,0.22580645161290322,0.03225806451612903],[-0.16129032258064516,-0.3548387096774194,-0.4838709677419355,-0.6129032258064516,-0.6129032258064516,-0.4838709677419355,-0.3548387096774194,-0.16129032258064516,0.22580645161290322,0.41935483870967744,0.5483870967741935,0.6774193548387096,0.6774193548387096,0.5483870967741935,0.41935483870967744,0.22580645161290322,-0.16129032258064516,-0.3548387096774194,-0.4838709677419355,-0.6129032258064516,-0.6129032258064516,-0.4838709677419355,-0.3548387096774194,-0.16129032258064516,0.22580645161290322,0.41935483870967744,0.5483870967741935,0.6774193548387096,0.6774193548387096,0.5483870967741935,0.41935483870967744,0.22580645161290322],[0.03225806451612903,-0.22580645161290322,0.03225806451612903,0.2903225806451613,0.03225806451612903,-0.22580645161290322,0.03225806451612903,0.2903225806451613,0.03225806451612903,-0.22580645161290322,0.03225806451612903,0.2903225806451613,0.03225806451612903,-0.22580645161290322,0.03225806451612903,0.2903225806451613,0.03225806451612903,-0.22580645161290322,0.03225806451612903,0.2903225806451613,0.03225806451612903,-0.22580645161290322,0.03225806451612903,0.2903225806451613,0.03225806451612903,-0.22580645161290322,0.03225806451612903,0.2903225806451613,0.03225806451612903,-0.22580645161290322,0.03225806451612903,0.2903225806451613],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+const fluteEnv = [[13,7,88,5],[10,0,99,5],[12,0,99,5]];
+const fun3 = [[-0.03225806451612903,-0.0967741935483871,-0.0967741935483871,-0.6129032258064516,-0.16129032258064516,-0.16129032258064516,-0.22580645161290322,-0.22580645161290322,-0.5483870967741935,-0.3548387096774194,-0.3548387096774194,-0.41935483870967744,-0.4838709677419355,-0.5483870967741935,-0.6129032258064516,-0.6129032258064516,0.7419354838709677,0.6774193548387096,0.6774193548387096,0.6129032258064516,0.5483870967741935,0.0967741935483871,0.4838709677419355,0.41935483870967744,0.3548387096774194,0.2903225806451613,0.7419354838709677,0.22580645161290322,0.16129032258064516,0.0967741935483871,0.03225806451612903,-0.3548387096774194],[-0.5483870967741935,-0.6129032258064516,-0.6774193548387096,-0.7419354838709677,-0.8064516129032258,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8709677419354839,-0.8064516129032258,-0.7419354838709677,-0.6774193548387096,-0.6129032258064516,-0.5483870967741935,-0.4838709677419355,0.4838709677419355,0.6129032258064516,0.6774193548387096,0.7419354838709677,0.8064516129032258,0.8709677419354839,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.9354838709677419,0.8709677419354839,0.7419354838709677,0.6774193548387096,0.5483870967741935,0.4838709677419355],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+const fun3Env = [[0,2,0,0],[0,5,0,0]];
+const fun4 = [[-0.41935483870967744,-0.3548387096774194,-0.3548387096774194,-0.2903225806451613,-0.2903225806451613,-0.2903225806451613,-0.2903225806451613,-0.2903225806451613,-0.2903225806451613,-0.2903225806451613,-0.2903225806451613,-0.2903225806451613,-0.2903225806451613,-0.2903225806451613,-0.3548387096774194,-0.3548387096774194,-0.3548387096774194,-0.3548387096774194,-0.3548387096774194,-0.3548387096774194,-0.41935483870967744,-0.41935483870967744,-0.41935483870967744,-0.41935483870967744,-0.41935483870967744,-0.41935483870967744,-0.41935483870967744,-0.41935483870967744,-0.41935483870967744,-0.41935483870967744,-0.2903225806451613,-0.22580645161290322],[-0.16129032258064516,-0.16129032258064516,-0.16129032258064516,-0.22580645161290322,-0.2903225806451613,-0.3548387096774194,-0.3548387096774194,-0.41935483870967744,-0.3548387096774194,-0.2903225806451613,-0.22580645161290322,-0.16129032258064516,-0.16129032258064516,-0.16129032258064516,-0.16129032258064516,-0.22580645161290322,-0.2903225806451613,-0.3548387096774194,-0.41935483870967744,-0.41935483870967744,-0.3548387096774194,-0.2903225806451613,-0.22580645161290322,-0.16129032258064516,-0.16129032258064516,-0.16129032258064516,-0.16129032258064516,-0.22580645161290322,-0.22580645161290322,-0.2903225806451613,-0.41935483870967744,-0.41935483870967744],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+const fun4Env = [[23,77,42,18],[16,37,22,55]];
+
+
+ // DOM
+ const blackButton = document.getElementById('black');
+ const redButton = document.getElementById('red');
+ const blueButton = document.getElementById('blue');
+ const yellowButton = document.getElementById('yellow');
+ const tooltip = document.getElementById("tooltip");
+ const schro = document.getElementById("schro");
+ const attack = document.getElementById("envelopeInput").elements.namedItem("a");
+ const decay = document.getElementById("envelopeInput").elements.namedItem("d");
+ const sustain = document.getElementById("envelopeInput").elements.namedItem("s");
+ const release = document.getElementById("envelopeInput").elements.namedItem("r");
+
+ constUpdate()
+
+ //Populate channels
+ buffers[0] = new bufferSynth('black');
+ buffers[1] = new bufferSynth('red');
+ buffers[2] = new bufferSynth('yellow');
+ buffers[3] = new bufferSynth('blue');
+
+
+ // Schroeder messages!!!
+
+ const messages =
+     ["Hello! im Schroeder, click HERE for wiki",
+         "To play, Use Midi or keyboard (qwerty and asdf rows)",
+         "Try using different envelopes for each colo(u)r :)",
+         "Merry hodlidays",
+         "ok stop touching me"
+ ]
+
+ // FUNCTIONS
+
+ // Output display
+
+ function updateCanvasColumn(row, column){
+     buffers[ID].setValue(column, row);
+
+     let lineStyle = document.forms["settings"]["style"].value
+
+     if (lineStyle === "line"){
+         resetColumn(column, row, ID, row)
+     }
+     else {
+         resetColumn(column, row, ID, 32)
+     }
+ }
+
+ function resetColumn(column, row, id, prev) {
+     //console.log(column);
+     const parent = document.getElementById(column+32);
+     let children = parent.children;
+     for (let i = 0; i < children.length; i++) {
+         if ((i >= row && i < prev) || (i <= row && i > prev) || ( i === prev && i === row)) {
+             if (id === 0){
+                 children.item(i).style.setProperty('--color1', 'black');
+             }
+             if (id === 1){
+                 children.item(i).style.setProperty('--color2', 'red');
+             }
+             if (id === 2){
+                 children.item(i).style.setProperty('--color4', 'orange');
+             }
+             if (id === 3){
+                 children.item(i).style.setProperty('--color3',  'blue');
+             }
+         }
+         else {
+             if (id === 0){
+                 children.item(i).style.setProperty('--color1', 'white');
+             }
+             if (id === 1){
+                 children.item(i).style.setProperty('--color2', 'white');
+             }
+             if (id === 2){
+                 children.item(i).style.setProperty('--color4', 'white');
+             }
+             if (id === 3){
+                 children.item(i).style.setProperty('--color3', 'white');
+             }
+         }
+     }
+ }
+
+ function loadPreset(buffer, envelope){
+     //Input: takes a 2d array of size 4 of 32 floats.
+     if (!context) {
+         newContext();
+         compressor = context.createDynamicsCompressor();
+     }
+     for (let i = 0; i < buffer.length; i++){
+         env.update((i+ ID) % 4, envelope[i][0], envelope[i][1], envelope[i][2], envelope[i][3]);
+
+         attack.value = envelope[i][0];
+         decay.value = envelope[i][1];
+         sustain.value = envelope[i][2];
+         release.value = envelope[i][3];
+
+         buffers[(i+ ID) % 4].activate();
+         buffers[(i+ ID) % 4].amplitude = buffer[i];
+         //console.log(env.a, env.d, env.s, env.r);
+
+         for(let j = 0; j < buffer[i].length; j++){
+             let lineStyle = document.forms["settings"]["style"].value;
+             let row = (buffer[i][j] * 15.5) + 15.5;
+             if (lineStyle === "line"){
+                 resetColumn(j, row, (i+ ID) % 4, row)
+             }
+             else {
+                 resetColumn(j, row, (i+ ID) % 4, 32)
+             }
+         }
+     }
+     updateDisplay();
+ }
+
+ function loadSimplePreset(buffer){
+     if (!context) {
+         newContext();
+         compressor = context.createDynamicsCompressor();
+     }
+
+     buffers[ID].activate();
+     buffers[ID].amplitude = buffer;
+
+     for(let j = 0; j < 32; j++){
+         let lineStyle = document.forms["settings"]["style"].value
+         let row = (buffer[j] * 15.5) + 15.5;
+         if (lineStyle === "line"){
+             resetColumn(j, row, ID, row)
+         }
+         else {
+             resetColumn(j, row, ID, 32)
+         }
+     }
+ }
+
+ function loadPresetReset(){
+     buffers[ID].deactivate();
+
+     for( let j = 0; j < 32; j++){
+         resetColumn(j, -3, ID, 0)
+     }
+ }
 
 function newContext() {
     context = new AudioContext({latencyHint: "interactive", sampleRate:44100});
 }
 
-// Controllers
+// Schroeder area
 
- // presets:
-function sine(){
+ function speak(msg, cooldown){
+     document.getElementById("tooltipper").innerText = msg;
+     tooltip.style.setProperty("visibility", "visible");
+     schro.style.setProperty("animation", "talk 0.3s steps(2) infinite");
 
-}
-
- function tabClick(color){
-     if (color === "black") {
-         attack.val(100 - env.a[0]);
-         sustain.val(100 - env.s[0]);
-         decay.val(100 - env.d[0]);
-         document.documentElement.style.setProperty('--selected-color', '#000000')
-         document.documentElement.style.setProperty('--selected-color2', '#eeeeee')
-         document.documentElement.style.setProperty('--selected-border', '#000000')
-
-     }
-
-     if (color === "red") {
-         attack.val(100 - env.a[1]);
-         sustain.val(100 - env.s[1]);
-         decay.val(100 - env.d[1]);
-         document.documentElement.style.setProperty('--selected-color', '#220000')
-         document.documentElement.style.setProperty('--selected-color2', '#ff8888')
-         document.documentElement.style.setProperty('--selected-border', '#221111')
-
-     }
-
-     if (color === "blue") {
-         attack.val(100 - env.a[2]);
-         sustain.val(100 - env.s[2]);
-         decay.val(100 - env.d[2]);
-         document.documentElement.style.setProperty('--selected-color', '#000022')
-         document.documentElement.style.setProperty('--selected-color2', '#8888ff')
-         document.documentElement.style.setProperty('--selected-border', '#333355')
-
-     }
-
-     if (color === "yellow") {
-         attack.val(100 - env.a[3]);
-         sustain.val(100 - env.s[3]);
-         decay.val(100 - env.d[3]);
-         document.documentElement.style.setProperty('--selected-color', '#333300')
-         document.documentElement.style.setProperty('--selected-color2', '#ff9966')
-         document.documentElement.style.setProperty('--selected-border', '#444400')
-
-     }
-
+     setTimeout(() => {
+         document.getElementById("tooltip").style.setProperty("visibility", "hidden")
+         document.getElementById("schro").style.setProperty("animation", "idle 0.5s steps(2) infinite");
+     }, cooldown * 1000)
  }
 
-function loadEnvelope(){
-    switch (COLOR){
-        case "black":
-            attack.val(100 - env.a[0]);
-            sustain.val(100 - env.s[0]);
-            decay.val(100 - env.d[0]);
-            break;
-        case "red":
-            attack.val(100 - env.a[1]);
-            sustain.val(100 - env.s[1]);
-            decay.val(100 - env.d[1]);
-            break;
-        case "blue":
-            attack.val(100 - env.a[2]);
-            sustain.val(100 - env.s[2]);
-            decay.val(100 - env.d[2]);
-            break;
-        case "yellow":
-            attack.val(100 - env.a[3]);
-            sustain.val(100 - env.s[3]);
-            decay.val(100 - env.d[3]);
-            break;
-    }
 
-}
-
-const CHANNELS = 4;
-const canvas = document.getElementById('canvas');
-const form  = document.querySelector('form');
-let isClick = false;
-let COLOR = 'black';
-let ID = 0;
-const buffers = new Array(CHANNELS);
-var context;
-const SAMPLE_RATE = 44100;
-const SAMPLE_COUNT = SAMPLE_RATE * 2;
-var completeBuffer;
-const env = new envelope();
-var prevAmplitude = 0; //cosmetic
- var compressor;
-
-//Populate channels
- buffers[0] = new bufferSynth('black');
- buffers[1] = new bufferSynth('red');
- buffers[2] = new bufferSynth('blue');
- buffers[3] = new bufferSynth('yellow');
 
 /*button.onclick = () => {
     COLOR = button.innerHTML;
@@ -195,127 +291,91 @@ var prevAmplitude = 0; //cosmetic
     }
     */
 
- let blackButton = document.getElementById('black');
- let redButton = document.getElementById('red');
- let blueButton = document.getElementById('blue');
- let yellowButton = document.getElementById('yellow');
+ function constUpdate(){
+     // populates gainNodes
+
+     env.update(ID, attack.value, decay.value, sustain.value, release.value);
+     updateDisplay();
+
+    //document.getElementById("a#").innerText = (Math.floor(env.a[ID])).toString();
+     //document.getElementById("s#").innerText = (Math.floor(env.s[ID])).toString();
+     //document.getElementById("d#").innerText = (Math.floor(env.d[ID])).toString();
+     //document.getElementById("r#").innerText = (Math.floor(env.r[ID])).toString();
+
+ }
+
+ function updateDisplay(){
+     document.documentElement.style.setProperty('--attack', env.a[ID] + "px")
+     document.documentElement.style.setProperty('--decay', env.d[ID] + "px")
+     document.documentElement.style.setProperty('--sustain', env.s[ID] + "px")
+     document.documentElement.style.setProperty('--sustainSub', (100 - env.s[ID]) + "px")
+     document.documentElement.style.setProperty('--sustainLength', (400 - env.a[ID] - env.d[ID] - env.r[ID]) + "px")
+     document.documentElement.style.setProperty('--release', env.r[ID] + "px")
+ }
+
+ function getNumbers(){
+     console.log("[[" + buffers[0].amplitude + "],[" + buffers[1].amplitude + "],[" + buffers[2].amplitude + "],[" + buffers[3].amplitude  + "]]");
+ }
+
+ setInterval(getNumbers, 10000);
 
  blackButton.addEventListener('click', function() {
-     COLOR = 'black';
      ID = 0;
-     attack.val(100 - env.a[0]);
-     sustain.val(100 - env.s[0]);
-     decay.val(100 - env.d[0]);
+     attack.value = env.a[0];
+     sustain.value = env.s[0];
+     decay.value = env.d[0];
+     release.value = env.r[0];
      document.documentElement.style.setProperty('--selected-color', '#000000')
      document.documentElement.style.setProperty('--selected-color2', '#eeeeee77')
      document.documentElement.style.setProperty('--selected-border', '#000000')
-     console.log(COLOR);
+
+     updateDisplay();
  });
  redButton.addEventListener('click', function() {
-     COLOR = 'red';
      ID = 1;
-     attack.val(100 - env.a[1]);
-     sustain.val(100 - env.s[1]);
-     decay.val(100 - env.d[1]);
+     attack.value = env.a[1];
+     sustain.value =  env.s[1];
+     decay.value = env.d[1];
+     release.value = env.r[1];
      document.documentElement.style.setProperty('--selected-color', '#220000')
      document.documentElement.style.setProperty('--selected-color2', '#ff888877')
      document.documentElement.style.setProperty('--selected-border', '#221111')
+
+     updateDisplay();
  });
  blueButton.addEventListener('click', function() {
-     COLOR = 'blue';
-     ID = 2;
-     attack.val(100 - env.a[2]);
-     sustain.val(100 - env.s[2]);
-     decay.val(100 - env.d[2]);
+     ID = 3;
+     attack.value = env.a[2];
+     sustain.value = env.s[2];
+     decay.value = env.d[2];
+     release.value = env.r[2];
      document.documentElement.style.setProperty('--selected-color', '#000022')
      document.documentElement.style.setProperty('--selected-color2', '#8888ff77')
      document.documentElement.style.setProperty('--selected-border', '#333355')
-     console.log(COLOR);
+
+     updateDisplay();
  });
  yellowButton.addEventListener('click', function() {
-     COLOR = 'yellow';
-     ID = 3;
-     attack.val(100 - env.a[3]);
-     sustain.val(100 - env.s[3]);
-     decay.val(100 - env.d[3]);
+     ID = 2;
+     attack.value =  env.a[3];
+     sustain.value = env.s[3];
+     decay.value = env.d[3];
+     release.value = env.r[3];
      document.documentElement.style.setProperty('--selected-color', '#333300')
      document.documentElement.style.setProperty('--selected-color2', '#ff996677')
      document.documentElement.style.setProperty('--selected-border', '#444400')
-     console.log(COLOR);
+
+     updateDisplay();
  });
 
-function updateT(element){
-    if (element.toString() !== 'canvas') {
-        console.log(element)
-        let column = Math.floor(element / 100);
-        let row = element % 100;
-
-        for (let i = 0; i < 4; i++) {
-            if (buffers[i].name === COLOR) {
-                buffers[i].setValue(column, row);
-                console.log("Value set!")
-            }
-        }
-
-        let lineStyle = document.forms["settings"]["style"].value
-
-        if (lineStyle === "line"){
-            if (column === 0) {
-                prevAmplitude = row;
-            }
-            else {
-                prevAmplitude = buffers[ID].getValue(column - 1);
-            }
-            resetColumn(column, row, COLOR, row)
-        }
-
-        else {
-            resetColumn(column, row, COLOR, 32)
-        }
-    }
-    else { isClick = false; }
-}
-
-function resetColumn(column, row, color, prev) {
-    console.log(column);
-    const parent = document.getElementById(column+32);
-    let children = parent.children;
-    for (let i = 0; i < children.length; i++) {
-        if ((i >= row && i < prev) || (i <= row && i > prev) || ( i === prev && i === row)) {
-            if (color === 'black'){
-                children.item(i).style.setProperty('--color1', 'black');
-            }
-            if (color === 'red'){
-                children.item(i).style.setProperty('--color2', 'red');
-            }
-            if (color === 'blue'){
-                children.item(i).style.setProperty('--color3',  'blue');
-            }
-            if (color === 'yellow'){
-                children.item(i).style.setProperty('--color4', 'orange');
-            }
-        }
-        else {
-            if (color === 'black'){
-                children.item(i).style.setProperty('--color1', 'white');
-            }
-            if (color === 'red'){
-                children.item(i).style.setProperty('--color2', 'white');
-            }
-            if (color === 'blue'){
-                children.item(i).style.setProperty('--color3', 'white');
-            }
-            if (color === 'yellow'){
-                children.item(i).style.setProperty('--color4', 'white');
-            }
-        }
-    }
-}
-
-
-
  document.getElementById("schro").addEventListener('click', () => {
-    document.getElementById("tooltip").style.setProperty("visibility", "visible")
+     if (document.getElementById("tooltip").style.getPropertyValue("visibility") === "visible"){
+         speak("...", 0.3);
+     }
+     else {
+         speak(messages[msgNum], 10);
+         msgNum = (msgNum + 1) % messages.length;
+     }
  });
 
 canvas.addEventListener('mousedown', (e) => {
@@ -324,17 +384,24 @@ canvas.addEventListener('mousedown', (e) => {
     if (!context) {
         newContext();
         compressor = context.createDynamicsCompressor();
-
     }
 
     let px = document.elementFromPoint(e.clientX,e.clientY);
-    updateT(px.id);
+    if (px.className === 'px'){
+        updateCanvasColumn(px.id % 100, (Math.floor(px.id / 100)));
+    }
+
 
 });
 canvas.addEventListener('mousemove', (e) => {
     if (isClick) {
         let px = document.elementFromPoint(e.clientX,e.clientY);
-        updateT(px.id);
+        if (px.className === 'px'){
+            updateCanvasColumn(px.id % 100, (Math.floor(px.id / 100)));
+        }
+        else if (px.className !== 'column'){
+            isClick = false;
+        }
     }
 });
 canvas.addEventListener('mouseup', () => {
@@ -343,15 +410,6 @@ canvas.addEventListener('mouseup', () => {
     //audio
     completeBuffer = context.createBuffer(CHANNELS, SAMPLE_COUNT, SAMPLE_RATE);
 });
-
-document.getElementById('envelope').addEventListener('mouseover', () => {
-     env.update(ID, 100 - attack.val(null), 100 - sustain.val(null), 100 - decay.val(null));
-     console.log("updated envelope", attack.val(null), sustain.val(null), decay.val(null));
- });
-
-document.getElementById("schro").addEventListener('click', () => {
-
-})
 
 /* playback & Audio handling
 
@@ -379,6 +437,8 @@ document.getElementById("schro").addEventListener('click', () => {
 
  function onMIDIFailure(msg) {
      console.error(`Failed to get MIDI access - ${msg}`);
+     speak(`Failed to get MIDI access - Check console`, 20);
+
  }
 
  navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure);
@@ -411,7 +471,7 @@ document.getElementById("schro").addEventListener('click', () => {
      for (const character of event.data) {
          str += `0x${character.toString(16)} `;
      }
-     console.log(str);
+     //console.log(str);
      if (event.data[0] === 144){
          noteOn(event.data[1])
      }
@@ -448,27 +508,31 @@ document.getElementById("schro").addEventListener('click', () => {
          this.source = Array(4);
          this.gainNode = Array(4);
 
+
      }
 
      Voice.prototype.start = function(localContext) {
+
+         //console.log("note start");
+
+         const now = localContext.currentTime;
 
          for (let i = 0; i < 4; i++) {
              if (buffers[i].active){
                  this.source[i] = localContext.createBufferSource();
                  this.bufferArray[i] = localContext.createBuffer(1, (SAMPLE_RATE / this.frequency), SAMPLE_RATE);
-                 console.log(this.bufferArray[i]);
+                 //console.log(this.bufferArray[i]);
 
                  buffers[i].fillBuffer(this.bufferArray[i].getChannelData(0), this.frequency, SAMPLE_RATE, 32);
 
-                 console.log(buffers[i]);
+                 //console.log(buffers[i]);
 
-                 this.gainNode[i] = localContext.createGain();
-                 this.gainNode[i].gain.setValueAtTime(0.0, localContext.currentTime);
-                 if (env.a[i] > 0){
-                     this.gainNode[i].gain.linearRampToValueAtTime(1.0, localContext.currentTime + (env.a[i]  / 50)); // envelope
-                 }
-                 this.gainNode[i].gain.setValueAtTime((env.s[i] / 100), localContext.currentTime + (env.a[i] / 50)); // envelope
-                 //gainNode0.gain.linearRampToValueAtTime(0.0, context.currentTime + 10);
+                 this.gainNode[i] = context.createGain();
+
+                 this.gainNode[i].gain.setValueAtTime(0, now);
+                 this.gainNode[i].gain.linearRampToValueAtTime(1, (now + (env.a[i] / 10))); // envelope
+
+                 this.gainNode[i].gain.linearRampToValueAtTime((env.s[i] / 100), (now + (env.a[i]  / 10) +(env.d[i] / 10)));
 
                  this.source[i].buffer = this.bufferArray[i];
                  this.source[i].connect(this.gainNode[i]);
@@ -479,7 +543,7 @@ document.getElementById("schro").addEventListener('click', () => {
                  compressor.connect(localContext.destination);
                  this.source[i].start();
 
-                 console.log(env.a[i], env.s[i], env.d[i])
+                 //console.log(env.a[i], env.s[i], env.d[i])
              }
          }
 
@@ -493,12 +557,12 @@ document.getElementById("schro").addEventListener('click', () => {
                  else {
 
                      const now = localContext.currentTime;
-                     const releaseTime = localContext.currentTime + (env.d[i]/50);
+                     let releaseTime = localContext.currentTime + (env.r[i]/10);
 
-                     this.gainNode[i].gain.cancelScheduledValues(now);
+                     //this.gainNode[i].gain.cancelScheduledValues(now);
 
                      this.gainNode[i].gain.setValueAtTime(this.gainNode[i].gain.value, now);
-                     this.gainNode[i].gain.linearRampToValueAtTime(0.0, releaseTime); // envelope
+                     this.gainNode[i].gain.linearRampToValueAtTime(0.0, releaseTime + 0.01); // envelope
 
                      this.source[i].stop(releaseTime);
                  }
@@ -517,9 +581,9 @@ document.getElementById("schro").addEventListener('click', () => {
 
  function noteOn(note) {
      //const frequency
-     console.log(note);
+     //console.log(note);
      const frequency = 440 * (2**((note-69) / 12));
-     console.log(frequency);
+     //console.log(frequency);
 
      voice[note] = new Voice(frequency, context);
      voice[note].start(context)
@@ -530,23 +594,5 @@ document.getElementById("schro").addEventListener('click', () => {
      voice[note].stop(context);
 
  }
-
-
- // Notes:
- // Maybe add automatic canvas population?
- // buffer created for length of decay, repeat section of frequency.
- // customisable colors
- // Animation
- // To do:
- // Finish website. kofi, fill out yt, create post system, tweak
- //.  home screen, sitemap, CNAME. Video page instead of contact. visit count? -1 day
- // Presets
- // Package inclusion & pitch control & envelope - 1 Day
- // Gui and design - 2 Days
- // Help page - 1/2
- // Fixes:
- // 1 page code
- // errors highlighting the columns
- //
 
 

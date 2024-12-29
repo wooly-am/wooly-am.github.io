@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>DOODLESYNTH</title>
-    <link rel="stylesheet" href="../../src/doodlesynth/ui.css" />
     <link rel="stylesheet" href="../../src/style-doodlesynth.css">
     <link rel="icon" type="image/x-icon" href="../../src/img/favicon.ico">
 
-    <script type="text/javascript" src="../../src/doodlesynth/jquery.min.js"></script>
-    <script type="text/javascript" src="../../src/doodlesynth/Knob.js"></script>
     <script src="../../src/doodlesynth/audiokeys.js"></script>
+
+    <script></script>
 
 </head>
 <body>
@@ -20,9 +19,9 @@
 <div class="main">
     <div class="left">
         <div class="section" style="margin-bottom: 0">
-            <div style="width: 388px; display:inline-block; height: 138px; overflow: clip">
+            <div style="width: 388px; display:inline-block; height: 138px;">
                 <img src="../../src/img/Title.png" alt="DOODLESYNTH" style="display: inline-block">
-                <div id="tooltip"  class="tooltip">Hello</div>
+                <div id="tooltip" class="tooltip" ><a id="tooltipper" href="help"></a></div>
             </div>
             <div class="schro" title="Click on me for tips!" id="schro"></div>
         </div>
@@ -1135,86 +1134,64 @@
                 </form>
             </div>
         </div>
-        <div class="section" id="envelope">
-            <p> section 3 </p>
-            <input id="a"
-                   name="a"
-                   type="number"
-                   value="1"
-                   min="0" max="100"
-                   data-angle-start="180"
-                   data-angle-end="-0"
-                   data-indicator-auto-position="true"
-                   data-indicator-auto-rotate="true"
-                   data-indicator-radius="22"
-
-            />
-            <input id="s"
-                   name="s"
-                   type="number"
-                   value="100"
-                   min="0" max="100"
-                   data-angle-start="180"
-                   data-angle-end="-0"
-                   data-indicator-auto-position="true"
-                   data-indicator-auto-rotate="true"
-                   data-indicator-radius="22"
-            />
-            <input id="d"
-                   name="d"
-                   type="number"
-                   value="1"
-                   min="0" max="100"
-                   data-angle-start="180"
-                   data-angle-end="-0"
-                   data-indicator-auto-position="true"
-                   data-indicator-auto-rotate="true"
-                   data-indicator-radius="25"
-            />
-        </div>
+    <div>
+        <a  href="https://github.com/wooly-am/wooly-am.github.io" ><img src="../../src/img/github.png" alt="Bugs? report on Github! @wooly_am"></a>
     </div>
 
+    </div>
+
+    <div class="section" id="envelope" style="margin: auto 60px 10px 10px ; float: right">
+        <div class ="envGraph" id="graph">
+            <div class="attack">
+                <div class="decay"></div>
+                <div class ="decayHelper">
+                    <div class="sustain">
+                        <div class="release">
+                        </div></div></div></div>
+        </div>
+        <form id="envelopeInput" style="display: inline; margin: auto" onchange="constUpdate()">
+            <label for="a">Attack:</label>
+            <input type="number" id="a" name="attack" min="0" max="99" value="0">
+            <label for="d">Decay:</label>
+            <input type="number" id="d" name="decay" min="0" max="99" value="0">
+            <label for="s">Sustain:</label>
+            <input type="number" id="s" name="sustain" min="0" max="99" value="99">
+            <label for="r">Release:</label>
+            <input type="number" id="r" name="release" min="0" max="99" value="0">
+        </form>
+    </div>
     <div class="right">
         <h1 style="margin-left: 190px">
-            Presets: (Inactive)
+            Presets:
         </h1>
-        <div class="hitBox" style="width: 130px; height: 230px; top: -75px; left: 10px"
-            title="Sine"></div>
-        <div class="hitBox" style="width: 170px; height: 210px; top: 5px; left: 25px"
-             title="Square"></div>
-        <div class="hitBox" style="width: 160px; height: 240px; top: -80px; left: 65px"
-             title="Sawtooth"></div>
-        <div class="hitBox" style="width: 130px; height: 210px; top: -70px; left: 10px"
-             title="Fun 01"></div>
-        <div class="hitBox" style="width: 210px; height: 210px; top: 35px; left: 40px"
-             title="Instrument 1"></div>
-        <div class="hitBox" style="width: 140px; height: 190px; top: -90px; left: 50px"
-             title="Organ"></div>
-        <div class="hitBox" style="width: 130px; height: 210px; top: -40px; left: 30px"
-             title="Fun 02"></div>
-        <div class="hitBox" style="width: 230px; height: 180px; top: 20px; left: 50px"
-             title="Fun 03"></div>
-        <div class="hitBox" style="width: 110px; height: 210px; top: -20px; left: 60px"
-             title="RESET"></div>
+        <div class="hitBox" style="width: 130px; height: 230px; top: -50px; left: 10px"
+            title="Sine" onclick="loadSimplePreset(sine)"></div>
+        <div class="hitBox" style="width: 170px; height: 210px; top: 30px; left: 25px"
+             title="Square" onclick="loadSimplePreset(square)"></div>
+        <div class="hitBox" style="width: 160px; height: 240px; top: -55px; left: 65px"
+             title="Sawtooth" onclick="loadSimplePreset(saw)"></div>
+        <div class="hitBox" style="width: 130px; height: 210px; top: -45px; left: 10px"
+             title="Fun 01" onclick="loadPreset(fun1, fun1Env)"></div>
+        <div class="hitBox" style="width: 210px; height: 210px; top: 60px; left: 40px"
+             title="Flute" onclick="loadPreset(flute, fluteEnv)"></div>
+        <div class="hitBox" style="width: 140px; height: 190px; top: -60px; left: 50px"
+             title="Organ" onclick="loadPreset(fun2, fun2Env)"></div>
+        <div class="hitBox" style="width: 130px; height: 210px; top: -15px; left: 30px"
+             title="Fun 02" onclick="loadPreset(fun3, fun3Env)"></div>
+        <div class="hitBox" style="width: 230px; height: 180px; top: 50px; left: 50px"
+             title="Fun 03" onclick="loadPreset(fun4, fun4Env)"></div>
+        <div class="hitBox" style="width: 110px; height: 210px; top: 10px; left: 60px"
+             title="RESET" onclick="loadPresetReset()"></div>
         <div>.</div>
     </div>
 </div>
 
-<div class="main"> Credits: Thank you to Audiokeys, jherm's knobs, etc </div>
+<div class="main" style="height:20px"> Credits: Thank you to @kylestatz & Audiokeys!! For help click on the cat :3 !! </div>
 
 <div class="bg-text" style="transform: rotate(90deg); right: -310px; font-family: 'Rudelsberg'; font-style: normal">woolyam.net</div>
 <div class="bg-text2" style="transform: rotate(90deg); right: -313px; font-family: 'Rudelsberg'; font-style: normal">woolyam.net</div>
 
 </body>
 
-<script type="text/javascript" src="../../src/doodlesynth/ui.js"></script>
-<script type="text/javascript" src="../../src/doodlesynth/knob_helper.js"></script>
-<script type="text/javascript">
-
-    const attack = KnobHelper.createKnobCanvas(document.getElementById("a"), "position-rotate-canvas-knob")
-    const sustain = KnobHelper.createKnobCanvas(document.getElementById("s"), "position-rotate-canvas-knob")
-    const decay = KnobHelper.createKnobCanvas(document.getElementById("d"), "position-rotate-canvas-knob")
-
-</script>
 <script src="../../src/doodlesynth/main.js"></script>
 </html>
