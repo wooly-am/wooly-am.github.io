@@ -188,7 +188,6 @@ a:hover{
 
 .canvas{
     background-color: #bbb;
-    width: 480px;
     height: 480px;
     display: inline-block;
     border: 2px black solid;
