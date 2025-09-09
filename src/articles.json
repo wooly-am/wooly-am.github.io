@@ -1,0 +1,35 @@
+{
+  "Tags": ["Show All","Music", "Drawing", "Interactive"],
+  "data": [{
+    "title": "null",
+    "year": 0,
+    "month": 0,
+    "day": 0,
+    "description": "_",
+    "link": "",
+    "tags": [],
+    "WIP": false
+  },
+    {
+      "thumb": "doodlesynth.png",
+      "title": "DoodleSYNTH",
+      "year": 2025,
+      "month": 2,
+      "day": 15,
+      "description": "A synthesizer where you can draw the waveforms you play! Comes with 8 or so presets! (Check it out I spent a long time on it)",
+      "link": "https://www.woolyam.net/interactive/doodlesynth/",
+      "tags": ["Pinned","Interactive"],
+      "WIP": false
+    },
+    {
+      "thumb": "musics.png",
+      "title": "some music",
+      "year": 2025,
+      "month": 2,
+      "day": 27,
+      "description": "Some music I did. I made a small site for it, I think it looks cool.",
+      "link": "https://woolyam.neocities.org/music",
+      "tags": ["Music"],
+      "WIP": false
+    }
+  ]}
