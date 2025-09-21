@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dilber</title>
+<link rel="icon" type="image/x-icon" href="../src/img/favicon.ico">
+<link rel="stylesheet" href="../src/style.css">
+<style>
+
+.container {
+	height: 400px;
+}
+
+</style>
+
+</head>
+
+
+<div class="header">
+    <ul>
+        <li><a href="../">Home</a></li>
+        <li><a href="">Music</a></li>
+        <li><a href="../interactive/">Interactive</a></li>
+        <li><a href="">Contact</a></li>
+    </ul>
+</div>
+
+<div class="container"><body>
+<img id="bigD" onmouseover="getReal(this)" onmouseout="getFake(this)" data-playing="false" role="switch" aria-checked="false"
+style="vertical-align:middle; width:1200px; margins:auto;" src="download.jpg" alt="Dilbert is literally my favorite thing ever i had the choice between dilbert and my own mother i would be attaching those gross fleshy lumps to the top of my head. Fuck dilbert tho">
+
+<button id="test" data-playing="false" role="switch" aria-checked="false">
+  <span>Play/Pause</span>
+</button>
+
+<audio src="50cents.mp3"></audio>
+
+<script>
+//From mozilla tutorial:
+const audioContext = new AudioContext();
+// get the audio element
+
+const audioElement = document.querySelector("audio");
+audioElement.crossOrigin = 'anonymous';
+// pass it into the audio context
+const track = audioContext.createMediaElementSource(audioElement);
+const img = document.querySelector("button");
+track.connect(audioContext.destination);
+
+
+
+img.addEventListener(
+  "click",
+  () => {
+    // Check if context is in suspended state (autoplay policy)
+    if (audioContext.state === "suspended") {
+		audioContext.resume();
+    }
+
+    // Play or pause track depending on state
+    if (img.dataset.playing === "false") {
+		audioElement.play();
+		img.dataset.playing = "true";  
+    } else if (img.dataset.playing === "true") {
+		audioElement.pause();
+		img.dataset.playing = "false";
+    }
+  },
+  false,
+);
+
+audioElement.addEventListener(
+  "ended",
+  () => {
+    img.dataset.playing = "false";
+  },
+  false,
+);
+
+function getReal(x) {
+	x.src = 'penic.jpg'
+	
+}
+function getFake(dilb) {
+	dilb.src = 'download.jpg'
+}
+
+
+</script>
+
+</body></div>
+</html>

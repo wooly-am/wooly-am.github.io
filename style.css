@@ -1,0 +1,209 @@
+:root[data-theme="cyberdusk"] {
+
+    --background-color: rgba(5, 17, 46, 0.93);
+    --background-color2: #ad470c;
+    --text-color: white;
+    --text-color2: #ad470c;
+    --border-color: black;
+    --text-color-dark: black;
+    --neon: darkcyan;
+
+    --background: url('src/img/home/background1.jpg');
+}
+
+:root[data-theme="pink"] {
+
+    --background-color: pink;
+    --background-color2: lightpink;
+    --text-color: black;
+    --text-color2: #dc6d84;
+    --border-color: white;
+    --text-color-dark: white;
+    --neon: magenta;
+
+    --background: url('src/img/home/background-pink.png');
+}
+
+body{
+    background-image: var(--background);
+
+    color: var(--text-color);
+}
+
+.neon{
+    border: 5px solid white;
+    border-radius: 10px;
+    outline: 4px solid var(--neon);
+    box-shadow: var(--neon) 2px 2px 25px 10px;
+    padding: 5px;
+    margin: auto;
+    text-align: center;
+    background-color: var(--neon);
+
+    display: inline-block;
+}
+
+.centered{
+    border: 5px ridge var(--border-color);
+    border-radius: 5px;
+    box-shadow: 5px 5px #0008;
+    background: var(--background-color);
+    padding: 10px;
+    margin: 10px auto;
+    text-align: center;
+
+    position: relative;
+
+    max-width: 1000px;
+}
+
+.img-hor-vert {
+    -webkit-transform: scale(-1, 1);
+    -moz-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+}
+
+.date{
+
+    font-weight: bold;
+    color: var(--text-color2);
+
+    text-shadow: 1px 1px #000;
+}
+
+p{
+    font-weight: normal;
+}
+
+a{
+    color: #91c0d9;
+    text-shadow: 1px 1px var(--text-color-dark);
+
+    text-decoration: none;
+
+    font-size: 18px;
+}
+
+a:hover{
+    text-shadow: 2px 2px var(--text-color-dark);
+}
+
+a:visited{
+    color: var(--text-color);
+    text-shadow: 1px 1px var(--text-color-dark);
+
+    text-underline: none;
+}
+
+a:active{
+    color: var(--text-color2);
+    text-shadow: 1px 1px var(--text-color-dark);
+
+    text-underline: none;
+}
+
+b{
+    color: var(--text-color);
+    text-shadow: 1px 1px var(--text-color-dark);
+    font-weight: bold;
+}
+
+/* Article stuff */
+
+table{
+    border-collapse: collapse;
+    width: 100%;
+    right: 7.5px;
+    position: relative;
+
+    text-align: left;
+}
+
+article{
+    background: #181a4788;
+    padding: 5px 5px 5px 5px;
+    border: 2px gray solid;
+    transition: background-color 1s ease-in-out;
+    transition-duration: 1s;
+
+    overflow: clip;
+}
+
+tr:hover{
+    background: linear-gradient(45deg, var(--background-color), var(--background-color2));
+    transition: all 10s ease-in-out;
+    transition-duration: 1s;
+}
+
+.title{
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 36px;
+    top: -100px;
+}
+
+.article_photo{
+    display: flex;
+    position: relative;
+    float: right;
+}
+
+.tags{
+    font-size: 16px;
+    text-decoration: blink;
+}
+
+
+footer{
+    background: black;
+}
+
+.heading1{
+    font-family: Rudelsburg;
+    font-size: 100px;
+    color: var(--text-color);
+    margin: 0 0 0 12px;
+
+}
+
+button:hover{
+    cursor: pointer;
+}
+
+#theme_changer{
+    height: 20px;
+    width: 120px;
+    background-color: var(--background-color);
+    display: inline-block;
+}
+
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #900;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #090;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #009;
+}
+
+@font-face {
+    font-family: 'Rudelsberg';
+    src: url('src/fonts/subset-RudelsbergRegular.woff2') format('woff2'),
+    url('src/fonts/subset-RudelsbergRegular.woff') format('woff');
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+}
