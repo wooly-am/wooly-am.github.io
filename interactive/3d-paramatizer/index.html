@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3d Paramatizer</title>
+  <script type="module" crossorigin src="/assets/index-BHNWVo-O.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-NqSKvrbA.css">
+</head>
+<body>
+<div id="scene_container" class='bisect' style="background: #240539">
+    <div id="scene_button_overlay">
+        <button id="left"> ▶ </button>
+        <button id="right"> ◀ </button>
+        <button id="release_3d_model" style="visibility: hidden"> x </button>
+    </div>
+
+</div>
+
+<div id="param_container" class="bisect">
+
+    <div id="module_space" style="overflow: scroll">
+    </div>
+    <div id="toolbar"></div>
+
+</div>
+
+
+
+<div class="divider" id="top"></div>
+<div class="divider" id="bottom"> </div>
+
+
+<div id="block" class="block">
+    <div style="align-items: center">
+        <label for="model" class="buttonesque">
+            Upload a 3d Model:
+        </label>
+        <input style="opacity: 0; width: 0; height: 0;" type="file" id="model" name="model" accept=".obj,.fbx,.gltf,.stl">
+    </div>
+</div>
+
+<div id="settings_overlay">
+    <button> ⚙ </button>
+    <input type="text" id="settings">
+</div>
+
+</body>
+</html>
