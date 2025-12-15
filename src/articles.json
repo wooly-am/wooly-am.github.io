@@ -22,6 +22,17 @@
       "WIP": false
     },
     {
+      "thumb": "",
+      "title": "3d Paramatizer",
+      "year": 2025,
+      "month": 12,
+      "day": 15,
+      "description": "Final project for a class. A weird, dull-sounding synth, turn your 3d models into sounds???",
+      "link": "https://www.woolyam.net/interactive/3d-paramatizer/",
+      "tags": ["Pinned","Interactive"],
+      "WIP": false
+    },
+    {
       "thumb": "musics.png",
       "title": "some music",
       "year": 2025,
